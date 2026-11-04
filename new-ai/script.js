@@ -211,7 +211,7 @@
   // Filled in once the proxy is deployed (for example
   // https://nabeel-ameen.onrender.com/api/chat). Public pages use it
   // automatically so visitors do not have to type an endpoint.
-  const HOSTED_PROXY = 'https://nabeel-ameen.loca.lt/api/chat';
+  const HOSTED_PROXY = 'https://favor-civic-restrictions-medication.trycloudflare.com/api/chat';
 
   function defaultProxyUrl() {
     const web = location.protocol === 'http:' || location.protocol === 'https:';
