@@ -61,6 +61,27 @@ A static copy is published at **https://aminbaloch984-design.github.io/nabeel-am
 
 GitHub Pages only serves files, so by default that copy has **no AI backend**: it renders the full interface, reports an honest "backend offline" state, and refuses to send a doomed request. To make the published URL answer, run the proxy on any HTTPS host and connect the page to it (see below). A plain `http://127.0.0.1` endpoint will not work from an HTTPS page because browsers block mixed content.
 
+### Temporary public link (this machine, no account)
+
+`start-public.ps1` starts the proxy on port 8788 with an access token, opens a
+Cloudflare quick tunnel, and writes the current address to `new-ai/proxy.json`
+in the published copy. The page reads that file on load, so the same link keeps
+working after a restart even though the tunnel address changes.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File start-public.ps1
+```
+
+| Item | Where |
+| --- | --- |
+| Access token | `%LOCALAPPDATA%\newai\public-token.txt` (reused on every run) |
+| Tunnel + proxy logs | `%LOCALAPPDATA%\newai\cloudflared.*.log` |
+| Autostart at logon | `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\NEW AI public link.cmd` |
+
+Remove the autostart entry by deleting that `.cmd` file. This route needs the
+PC switched on: when it is off the link reports that the backend is unreachable.
+For an always-on URL use the hosted proxy below.
+
 ### Hosting the proxy (so the public page works)
 
 The proxy is plain Node with zero dependencies, so any Node host works. With [Render](https://render.com) free tier:
