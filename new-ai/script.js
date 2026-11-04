@@ -3163,12 +3163,38 @@
     }
   }
 
+  function markBackendOffline(sub) {
+    setNetState('offline', 'Backend offline', sub);
+    const badge = $('conn-badge');
+    if (badge) {
+      badge.textContent = 'offline';
+      badge.className = 'badge is-error';
+    }
+    const connStatus = $('conn-status');
+    if (connStatus) {
+      connStatus.textContent = 'Not reachable';
+      connStatus.className = 'conn-status is-error';
+    }
+    const modelText = $('model-pill-text');
+    if (modelText) modelText.textContent = 'no backend';
+  }
+
   async function checkBackend() {
     const endpoint = healthUrl();
     if (!endpoint) {
       setNetState('offline', 'Invalid endpoint', 'Check the proxy URL');
       return null;
     }
+
+    // A page on a public domain has no /api routes behind it. Probing the
+    // auto-derived endpoint would only log a 404, so report the real setup
+    // instead of pretending to check. A proxy the user actually entered is
+    // still probed, even when it is remote.
+    if (!isLocalHost() && settings.proxyUrl === defaultProxyUrl()) {
+      markBackendOffline('Static demo — set an HTTPS proxy in Settings');
+      return null;
+    }
+
     setNetState('busy', 'Checking backend…', 'AI connection');
 
     const controller = new AbortController();
@@ -3226,23 +3252,17 @@
             : 'Backend up — key missing';
         connStatus.className = 'conn-status ' + (data && data.hasKey ? 'is-ok' : 'is-error');
       }
+      updateModelPill();
       return data;
     } catch {
-      setNetState(
-        'offline',
-        'Backend offline',
-        isLocalHost() ? 'Run node server/server.js' : 'Static demo — set an HTTPS proxy in Settings'
+      const customProxy = settings.proxyUrl !== defaultProxyUrl();
+      markBackendOffline(
+        customProxy
+          ? 'Proxy unreachable — check the endpoint in Settings'
+          : isLocalHost()
+            ? 'Run node server/server.js'
+            : 'Static demo — set an HTTPS proxy in Settings'
       );
-      const badge = $('conn-badge');
-      if (badge) {
-        badge.textContent = 'offline';
-        badge.className = 'badge is-error';
-      }
-      const connStatus = $('conn-status');
-      if (connStatus) {
-        connStatus.textContent = 'Not reachable';
-        connStatus.className = 'conn-status is-error';
-      }
       return null;
     } finally {
       clearTimeout(timer);
