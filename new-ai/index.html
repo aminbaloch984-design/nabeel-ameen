@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070d">
+  <title>NEW AI — Personal AI Agent</title>
+  <meta name="description" content="NEW AI is a JARVIS-inspired personal AI agent with ChatGPT-style conversations, voice control, multi-step agents, memory and approved browser tools.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2305070d'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='url(%23g)' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='5' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Icon sprite -->
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5Z"/></symbol>
+    <symbol id="i-agent" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/><circle cx="12" cy="12" r="2.4"/></symbol>
+    <symbol id="i-voice" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></symbol>
+    <symbol id="i-memory" viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 0-4 4 4 4 0 0 0-3 6.6A4 4 0 0 0 8 20a4 4 0 0 0 8 0 4 4 0 0 0 3-7.4A4 4 0 0 0 16 6a4 4 0 0 0-4-4Z"/><path d="M12 6v12M8 10h8M8 14h8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.4"/><circle cx="8" cy="17" r="2.4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m4 12 16-8-6 16-3.2-6.8L4 12Z"/><path d="m10.8 13.2 4-4"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M7 7l1 13h8l1-13"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m14 7 3 3"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7l-4 3H4Z"/><path d="M15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11"/></symbol>
+    <symbol id="i-volume-off" viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7l-4 3H4Z"/><path d="m15 9 6 6M21 9l-6 6"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></symbol>
+    <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="m3 3 18 18M9 5a3 3 0 0 1 6 0v6M5 11a7 7 0 0 0 11.5 5.4M12 18v4M8 22h8"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"/><path d="m5 3 .6 1.4L7 5l-1.4.6L5 7l-.6-1.4L3 5l1.4-.6L5 3Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 3 7.5 7 9 4-1.5 7-4.4 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5M12 17h.01"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6.7"/><path d="M20 5v6h-6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01M9 16h6"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9Z"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 10h8M8 14h5"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h12l3 3v15H5V3Z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/></symbol>
+  </svg>
+
+  <div class="app" id="app">
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__brand">
+        <div class="core core--xs" aria-hidden="true"><span class="core__ring"></span><span class="core__ring core__ring--2"></span><span class="core__orb"></span></div>
+        <div>
+          <p class="brand-name">NEW<span>AI</span></p>
+          <p class="brand-sub">Personal agent</p>
+        </div>
+        <button class="icon-btn sidebar__close" id="sidebar-close" aria-label="Close menu" type="button">
+          <svg class="icon"><use href="#i-x"></use></svg>
+        </button>
+      </div>
+
+      <button class="new-chat" id="new-chat" type="button">
+        <svg class="icon"><use href="#i-plus"></use></svg>
+        <span>New conversation</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+
+      <nav class="side-nav" aria-label="Workspace">
+        <button class="side-nav__item is-active" data-view="chat" type="button">
+          <svg class="icon"><use href="#i-chat"></use></svg><span>Chat</span>
+          <span class="side-nav__dot"></span>
+        </button>
+        <button class="side-nav__item" data-view="agent" type="button">
+          <svg class="icon"><use href="#i-agent"></use></svg><span>Agents</span>
+        </button>
+        <button class="side-nav__item" data-view="voice" type="button">
+          <svg class="icon"><use href="#i-voice"></use></svg><span>Voice</span>
+          <span class="side-nav__badge" id="voice-nav-badge" hidden>LIVE</span>
+        </button>
+        <button class="side-nav__item" data-view="memory" type="button">
+          <svg class="icon"><use href="#i-memory"></use></svg><span>Memory</span>
+          <span class="side-nav__count" id="memory-nav-count">0</span>
+        </button>
+      </nav>
+
+      <div class="history">
+        <div class="history__head">
+          <span>Conversations</span>
+          <span class="history__count" id="conversation-count">0</span>
+        </div>
+        <label class="search-field search-field--sm">
+          <svg class="icon"><use href="#i-search"></use></svg>
+          <input id="conversation-search" type="search" placeholder="Search history" autocomplete="off" aria-label="Search conversations">
+        </label>
+        <div class="history__list" id="conversation-list" role="list"></div>
+      </div>
+
+      <div class="sidebar__foot">
+        <button class="side-nav__item" data-view="settings" type="button">
+          <svg class="icon"><use href="#i-settings"></use></svg><span>Settings</span>
+        </button>
+        <div class="net-status" id="net-status">
+          <span class="status-dot" id="net-dot"></span>
+          <div>
+            <p id="net-text">Checking backend…</p>
+            <small id="net-sub">AI connection</small>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="scrim" id="sidebar-scrim" hidden></div>
+
+    <!-- ============================= MAIN ============================= -->
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn topbar__menu" id="sidebar-toggle" aria-label="Open menu" type="button">
+          <svg class="icon"><use href="#i-menu"></use></svg>
+        </button>
+
+        <div class="topbar__title">
+          <span class="kicker" id="view-kicker">Workspace</span>
+          <h1 id="view-title">Chat</h1>
+        </div>
+
+        <div class="topbar__actions">
+          <span class="model-pill" id="model-pill" title="Active model">
+            <span class="model-pill__dot"></span><span id="model-pill-text">not connected</span>
+          </span>
+          <span class="net-pill" id="net-pill" title="Backend status">
+            <span class="status-dot" id="net-pill-dot"></span><span id="net-pill-text">offline</span>
+          </span>
+          <button class="icon-btn" id="voice-quick" type="button" aria-label="Open voice assistant" title="Voice assistant">
+            <svg class="icon"><use href="#i-voice"></use></svg>
+          </button>
+          <button class="icon-btn topbar__settings" data-view="settings" type="button" aria-label="Settings">
+            <svg class="icon"><use href="#i-settings"></use></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ----------------------------- CHAT ----------------------------- -->
+      <section class="view is-active" id="view-chat" data-title="Chat" data-kicker="Workspace">
+        <div class="chat-scroll" id="chat-scroll">
+          <div class="chat-inner" id="chat-messages" aria-live="polite"></div>
+          <button class="scroll-bottom" id="scroll-bottom" type="button" hidden aria-label="Scroll to latest message">
+            <svg class="icon"><use href="#i-arrow-down"></use></svg>
+          </button>
+        </div>
+
+        <div class="composer-wrap">
+          <form class="composer" id="composer" autocomplete="off">
+            <textarea id="prompt-input" rows="1" placeholder="Ask NEW AI anything — code, research, writing, or a task…" aria-label="Message"></textarea>
+            <div class="composer__bar">
+              <div class="composer__left">
+                <button class="chip-btn" id="tools-toggle" type="button" aria-pressed="true" title="Allow approved tools">
+                  <svg class="icon"><use href="#i-bolt"></use></svg><span>Tools</span>
+                </button>
+                <button class="icon-btn icon-btn--quiet" id="mic-btn" type="button" aria-label="Voice input" title="Voice input">
+                  <svg class="icon"><use href="#i-mic"></use></svg>
+                </button>
+              </div>
+              <div class="composer__right">
+                <span class="char-count" id="char-count">0</span>
+                <button class="send-btn" id="stop-btn" type="button" hidden aria-label="Stop generating">
+                  <svg class="icon"><use href="#i-stop"></use></svg>
+                </button>
+                <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">
+                  <svg class="icon"><use href="#i-send"></use></svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <p class="composer-hint">
+            <span class="status-dot status-dot--tiny" id="composer-dot"></span>
+            <span id="composer-status">NEW AI can make mistakes. Verify important information.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ----------------------------- AGENT ---------------------------- -->
+      <section class="view" id="view-agent" data-title="Agents" data-kicker="Automation">
+        <div class="page-scroll">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow"><svg class="icon"><use href="#i-agent"></use></svg>Multi-step execution</span>
+              <h2>Deploy a focused AI agent</h2>
+              <p>NEW AI plans the work, runs each step with approved tools, and reports progress live. Sensitive actions always wait for your permission.</p>
+            </div>
+            <span class="badge badge--soft" id="agent-status">Idle</span>
+          </div>
+
+          <div class="agent-grid">
+            <section class="panel agent-builder">
+              <h3>1. Choose an agent</h3>
+              <div class="agent-types" role="radiogroup" aria-label="Agent type">
+                <label class="agent-type is-checked">
+                  <input type="radio" name="agent-type" value="assistant" checked>
+                  <svg class="icon"><use href="#i-sparkles"></use></svg>
+                  <b>Personal</b><small>Plan and run everyday tasks</small>
+                </label>
+                <label class="agent-type">
+                  <input type="radio" name="agent-type" value="coding">
+                  <svg class="icon"><use href="#i-code"></use></svg>
+                  <b>Coding</b><small>Build, debug and explain code</small>
+                </label>
+                <label class="agent-type">
+                  <input type="radio" name="agent-type" value="research">
+                  <svg class="icon"><use href="#i-globe"></use></svg>
+                  <b>Research</b><small>Search, compare and summarise</small>
+                </label>
+                <label class="agent-type">
+                  <input type="radio" name="agent-type" value="writing">
+                  <svg class="icon"><use href="#i-edit"></use></svg>
+                  <b>Writing</b><small>Draft, edit and polish</small>
+                </label>
+              </div>
+
+              <label class="field-label" for="agent-goal">2. Describe the goal</label>
+              <textarea class="field field--area" id="agent-goal" rows="5" placeholder="Example: Research three laptops under PKR 300,000 for a computer-science student and recommend one with reasons."></textarea>
+
+              <div class="agent-builder__actions">
+                <button class="btn btn--primary" id="agent-run" type="button">
+                  <svg class="icon"><use href="#i-play"></use></svg>Plan &amp; run
+                </button>
+                <button class="btn btn--ghost" id="agent-stop" type="button" disabled>
+                  <svg class="icon"><use href="#i-stop"></use></svg>Stop
+                </button>
+              </div>
+              <p class="form-error" id="agent-error" hidden></p>
+              <p class="fine-print"><svg class="icon"><use href="#i-shield"></use></svg>Tool actions open a permission prompt. Nothing runs silently.</p>
+            </section>
+
+            <section class="panel agent-runtime">
+              <div class="panel__head">
+                <h3>Live run</h3>
+                <div class="progress" aria-hidden="true"><span id="agent-progress"></span></div>
+              </div>
+              <ol class="timeline" id="agent-steps">
+                <li class="timeline__empty">
+                  <span class="icon-tile"><svg class="icon"><use href="#i-agent"></use></svg></span>
+                  <p>No active run. Describe a goal and NEW AI will build a plan here.</p>
+                </li>
+              </ol>
+              <div class="agent-result" id="agent-result" hidden></div>
+            </section>
+
+            <aside class="panel agent-history">
+              <div class="panel__head"><h3>Recent tasks</h3><span class="badge badge--soft" id="task-count">0</span></div>
+              <div class="task-list" id="task-list"></div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ----------------------------- VOICE ---------------------------- -->
+      <section class="view" id="view-voice" data-title="Voice" data-kicker="JARVIS mode">
+        <div class="voice-stage">
+          <div class="voice-stage__glow" aria-hidden="true"></div>
+
+          <div class="core core--xl" id="voice-core" aria-hidden="true">
+            <span class="core__ring"></span>
+            <span class="core__ring core__ring--2"></span>
+            <span class="core__ring core__ring--3"></span>
+            <span class="core__orb"></span>
+            <span class="core__scan"></span>
+          </div>
+
+          <p class="voice-status" id="voice-status">Standby</p>
+          <canvas class="waveform" id="waveform" width="720" height="96" aria-hidden="true"></canvas>
+          <p class="voice-transcript" id="voice-transcript">Tap the microphone or enable the wake phrase to talk to NEW AI.</p>
+
+          <div class="voice-controls">
+            <button class="voice-btn" id="voice-mic" type="button">
+              <span class="voice-btn__icon"><svg class="icon"><use href="#i-mic"></use></svg></span>
+              <span><b>Talk</b><small>Hold a conversation</small></span>
+            </button>
+            <button class="voice-btn" id="wake-toggle" type="button" aria-pressed="false">
+              <span class="voice-btn__icon"><svg class="icon"><use href="#i-sparkles"></use></svg></span>
+              <span><b>Wake phrase</b><small id="wake-label">“Hey NEW AI”</small></span>
+            </button>
+            <button class="voice-btn" id="voice-replies-toggle" type="button" aria-pressed="true">
+              <span class="voice-btn__icon"><svg class="icon"><use href="#i-volume"></use></svg></span>
+              <span><b>Spoken replies</b><small>Text-to-speech</small></span>
+            </button>
+          </div>
+
+          <div class="voice-hint" id="voice-hint">
+            <svg class="icon"><use href="#i-sparkles"></use></svg>
+            <span>Try: “Hey NEW AI, open GitHub” or “Explain promises in JavaScript”.</span>
+          </div>
+          <p class="voice-unsupported" id="voice-unsupported" hidden>
+            This browser does not support the Web Speech API. Use Chrome or Edge for voice input; text chat still works.
+          </p>
+        </div>
+      </section>
+
+      <!-- ---------------------------- MEMORY ---------------------------- -->
+      <section class="view" id="view-memory" data-title="Memory" data-kicker="Personal context">
+        <div class="page-scroll">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow"><svg class="icon"><use href="#i-memory"></use></svg>User-controlled memory</span>
+              <h2>What NEW AI remembers</h2>
+              <p>Only approved preferences and facts are stored, locally in this browser. You can edit or delete any memory at any time.</p>
+            </div>
+            <div class="page-head__actions">
+              <button class="btn btn--primary" id="memory-add" type="button"><svg class="icon"><use href="#i-plus"></use></svg>Add memory</button>
+            </div>
+          </div>
+
+          <div class="memory-toolbar">
+            <label class="search-field">
+              <svg class="icon"><use href="#i-search"></use></svg>
+              <input id="memory-search" type="search" placeholder="Search memories" autocomplete="off" aria-label="Search memories">
+            </label>
+            <div class="switch-row">
+              <label class="switch">
+                <input type="checkbox" id="memory-enabled" checked>
+                <span class="switch__track"><span class="switch__thumb"></span></span>
+              </label>
+              <span>Use memory in conversations</span>
+            </div>
+            <span class="memory-count" id="memory-count">0 memories</span>
+          </div>
+
+          <div class="memory-grid" id="memory-list"></div>
+          <div class="empty-state" id="memory-empty" hidden>
+            <span class="icon-tile"><svg class="icon"><use href="#i-memory"></use></svg></span>
+            <h3>No memories yet</h3>
+            <p>Add a preference like “I prefer concise answers” or “I code in TypeScript”. NEW AI will use it as context.</p>
+            <button class="btn btn--ghost" id="memory-empty-add" type="button">Add your first memory</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- --------------------------- SETTINGS --------------------------- -->
+      <section class="view" id="view-settings" data-title="Settings" data-kicker="Configuration">
+        <div class="page-scroll">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow"><svg class="icon"><use href="#i-settings"></use></svg>Control centre</span>
+              <h2>Settings</h2>
+              <p>Connection, voice, permissions and local data. Secrets stay on the backend — never in this page.</p>
+            </div>
+            <span class="badge badge--soft" id="settings-saved">Saved locally</span>
+          </div>
+
+          <div class="settings-grid">
+            <section class="panel settings-card">
+              <div class="panel__head">
+                <h3><svg class="icon"><use href="#i-bolt"></use></svg>AI connection</h3>
+                <span class="badge" id="conn-badge">unknown</span>
+              </div>
+              <p class="panel__note">The browser calls a local proxy. Put your provider key in <code>server/.env</code>, never here.</p>
+
+              <label class="field-label" for="set-proxy">Proxy endpoint</label>
+              <input class="field" id="set-proxy" type="url" spellcheck="false" placeholder="http://localhost:8787/api/chat">
+
+              <div class="field-row">
+                <div>
+                  <label class="field-label" for="set-model">Model</label>
+                  <input class="field" id="set-model" type="text" spellcheck="false" placeholder="gpt-4o-mini">
+                </div>
+                <div>
+                  <label class="field-label" for="set-maxtokens">Max output tokens</label>
+                  <input class="field" id="set-maxtokens" type="number" min="128" max="8192" step="64">
+                </div>
+              </div>
+
+              <label class="field-label" for="set-temp">Creativity <span class="range-value" id="set-temp-value">0.7</span></label>
+              <input class="range" id="set-temp" type="range" min="0" max="1.4" step="0.1">
+
+              <label class="switch-row">
+                <span class="switch"><input type="checkbox" id="set-streaming" checked><span class="switch__track"><span class="switch__thumb"></span></span></span>
+                <span>Stream responses token by token</span>
+              </label>
+
+              <div class="settings-card__actions">
+                <button class="btn btn--ghost" id="test-connection" type="button"><svg class="icon"><use href="#i-refresh"></use></svg>Test connection</button>
+                <span class="conn-status" id="conn-status">Not tested</span>
+              </div>
+            </section>
+
+            <section class="panel settings-card">
+              <div class="panel__head"><h3><svg class="icon"><use href="#i-bot"></use></svg>Behaviour</h3></div>
+
+              <label class="field-label" for="set-username">Your name <span class="muted">(optional)</span></label>
+              <input class="field" id="set-username" type="text" placeholder="e.g. Nabeel" autocomplete="name">
+
+              <label class="field-label" for="set-style">Answer style</label>
+              <select class="field" id="set-style">
+                <option value="balanced">Balanced — clear and thorough</option>
+                <option value="concise">Concise — short and direct</option>
+                <option value="detailed">Detailed — deep explanations</option>
+              </select>
+
+              <label class="field-label" for="set-context">Conversation context <span class="range-value" id="set-context-value">24 messages</span></label>
+              <input class="range" id="set-context" type="range" min="6" max="60" step="2">
+
+              <p class="fine-print"><svg class="icon"><use href="#i-shield"></use></svg>All history stays in this browser. Older messages remain visible and searchable; only the latest window is sent as context.</p>
+            </section>
+
+            <section class="panel settings-card">
+              <div class="panel__head"><h3><svg class="icon"><use href="#i-voice"></use></svg>Voice</h3></div>
+
+              <label class="switch-row">
+                <span class="switch"><input type="checkbox" id="set-voice-output" checked><span class="switch__track"><span class="switch__thumb"></span></span></span>
+                <span>Enable spoken replies</span>
+              </label>
+              <label class="switch-row">
+                <span class="switch"><input type="checkbox" id="set-autospeak" checked><span class="switch__track"><span class="switch__thumb"></span></span></span>
+                <span>Automatically speak new answers</span>
+              </label>
+
+              <label class="field-label" for="set-voice">Voice</label>
+              <select class="field" id="set-voice"><option value="">System default</option></select>
+
+              <label class="field-label" for="set-lang">Recognition language</label>
+              <input class="field" id="set-lang" type="text" placeholder="en-US" spellcheck="false">
+
+              <label class="field-label" for="set-rate">Speed <span class="range-value" id="set-rate-value">1.0×</span></label>
+              <input class="range" id="set-rate" type="range" min="0.6" max="1.6" step="0.1">
+
+              <label class="field-label" for="set-pitch">Pitch <span class="range-value" id="set-pitch-value">1.0</span></label>
+              <input class="range" id="set-pitch" type="range" min="0.5" max="1.6" step="0.1">
+
+              <label class="field-label" for="set-wake">Wake phrase</label>
+              <input class="field" id="set-wake" type="text" placeholder="hey new ai">
+
+              <button class="btn btn--ghost" id="test-voice" type="button"><svg class="icon"><use href="#i-volume"></use></svg>Test voice</button>
+            </section>
+
+            <section class="panel settings-card">
+              <div class="panel__head"><h3><svg class="icon"><use href="#i-shield"></use></svg>Permissions &amp; tools</h3></div>
+
+              <label class="switch-row">
+                <span class="switch"><input type="checkbox" id="set-tools" checked><span class="switch__track"><span class="switch__thumb"></span></span></span>
+                <span>Allow tool use in chat and agents</span>
+              </label>
+
+              <div class="tool-list" id="tool-list"></div>
+
+              <label class="field-label" for="set-bridge">Native bridge URL <span class="muted">(optional)</span></label>
+              <input class="field" id="set-bridge" type="url" spellcheck="false" placeholder="http://127.0.0.1:8790">
+              <p class="fine-print"><svg class="icon"><use href="#i-alert"></use></svg>Browsers cannot launch desktop apps alone. A local bridge must be installed separately and should only allow an explicit app allowlist.</p>
+
+              <div class="settings-card__actions">
+                <button class="btn btn--ghost btn--danger" id="reset-perms" type="button">Reset session permissions</button>
+              </div>
+            </section>
+
+            <section class="panel settings-card">
+              <div class="panel__head"><h3><svg class="icon"><use href="#i-memory"></use></svg>Memory</h3></div>
+              <label class="switch-row">
+                <span class="switch"><input type="checkbox" id="set-memory" checked><span class="switch__track"><span class="switch__thumb"></span></span></span>
+                <span>Retrieve relevant memories in conversations</span>
+              </label>
+              <p class="panel__note">Memories are matched by keyword and recency. You can view and delete them any time from the Memory page.</p>
+              <button class="btn btn--ghost" data-view="memory" type="button"><svg class="icon"><use href="#i-memory"></use></svg>Manage memories</button>
+            </section>
+
+            <section class="panel settings-card">
+              <div class="panel__head"><h3><svg class="icon"><use href="#i-download"></use></svg>Local data</h3></div>
+              <p class="panel__note">Conversations, tasks and memories live in this browser only. Export a JSON backup before clearing.</p>
+              <div class="data-actions">
+                <button class="btn btn--ghost" id="export-data" type="button"><svg class="icon"><use href="#i-download"></use></svg>Export data</button>
+                <button class="btn btn--ghost btn--danger" id="clear-chats" type="button"><svg class="icon"><use href="#i-trash"></use></svg>Clear conversations</button>
+                <button class="btn btn--ghost btn--danger" id="clear-memories" type="button"><svg class="icon"><use href="#i-trash"></use></svg>Clear memories</button>
+                <button class="btn btn--ghost btn--danger" id="reset-settings" type="button"><svg class="icon"><use href="#i-refresh"></use></svg>Reset settings</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-root" id="toast-root" role="status" aria-live="polite"></div>
+  <div class="modal-root" id="modal-root"></div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

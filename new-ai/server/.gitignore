@@ -1,0 +1,4 @@
+# Secrets must never be committed.
+.env
+.env.local
+*.log

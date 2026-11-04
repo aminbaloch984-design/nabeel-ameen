@@ -1,0 +1,13 @@
+{
+  "name": "new-ai-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-dependency local server and secure AI proxy for NEW AI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
