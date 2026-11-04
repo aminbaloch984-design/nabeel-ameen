@@ -208,15 +208,22 @@
      Defaults & state
      ===================================================================== */
 
+  // Filled in once the proxy is deployed (for example
+  // https://new-ai-proxy.onrender.com/api/chat). Public pages use it
+  // automatically so visitors do not have to type an endpoint.
+  const HOSTED_PROXY = '';
+
   function defaultProxyUrl() {
-    if (location.protocol === 'http:' || location.protocol === 'https:') {
-      return location.origin + '/api/chat';
-    }
+    const localHost = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/i.test(location.hostname);
+    const web = location.protocol === 'http:' || location.protocol === 'https:';
+    if (web && !localHost && HOSTED_PROXY) return HOSTED_PROXY;
+    if (web) return location.origin + '/api/chat';
     return 'http://localhost:8787/api/chat';
   }
 
   const DEFAULT_SETTINGS = {
     proxyUrl: defaultProxyUrl(),
+    token: '',
     model: 'gpt-4o-mini',
     modelTouched: false,
     maxTokens: 1024,
@@ -258,6 +265,7 @@
     merged.rate = clamp(Number(merged.rate) || 1, 0.5, 2);
     merged.pitch = clamp(Number(merged.pitch) || 1, 0.5, 2);
     if (!merged.proxyUrl) merged.proxyUrl = defaultProxyUrl();
+    merged.token = String(merged.token || '').trim();
     return merged;
   }
 
@@ -1148,9 +1156,11 @@
       return {
         message: error.message,
         hint:
-          error.status === 401 || error.status === 403
-            ? 'The key stays on the server. Put it in <code>server/.env</code>, never in the browser.'
-            : error.status === 429
+          error.status === 401 && settings.token
+            ? 'The proxy rejected the access token. Check Settings → Access token.'
+            : error.status === 401 || error.status === 403
+              ? 'The key stays on the server. Put it in <code>server/.env</code>, never in the browser.'
+              : error.status === 429
               ? 'Free-tier quotas reset automatically. Switch the model in Settings, add billing to the key, or wait for the reset shown above.'
               : 'Server logs may contain more detail. Do not expose secrets in the browser console.',
       };
@@ -1159,6 +1169,14 @@
       message: (error && error.message) || 'Unexpected error.',
       hint: 'Try again, or test the connection from Settings.',
     };
+  }
+
+  // The optional token only exists for public proxies. It is stored in this
+  // browser's localStorage and never bundled into the site.
+  function authHeaders(extra = {}) {
+    const headers = Object.assign({}, extra);
+    if (settings.token) headers.Authorization = 'Bearer ' + settings.token;
+    return headers;
   }
 
   // One request against one model. callChat() wraps this with quota fallback.
@@ -1179,7 +1197,7 @@
     try {
       response = await fetch(settings.proxyUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
         signal,
       });
@@ -3154,6 +3172,7 @@
   function applySettingsToForm() {
     const values = {
       'set-proxy': settings.proxyUrl,
+      'set-token': settings.token,
       'set-model': settings.model,
       'set-maxtokens': settings.maxTokens,
       'set-temp': settings.temperature,
@@ -3340,7 +3359,7 @@
     const timer = setTimeout(() => controller.abort(), 6000);
     try {
       const response = await fetch(endpoint, {
-        headers: { Accept: 'application/json' },
+        headers: authHeaders({ Accept: 'application/json' }),
         cache: 'no-store',
         signal: controller.signal,
       });
@@ -3396,6 +3415,14 @@
             : 'Backend up — key missing';
         connStatus.className = 'conn-status ' + (data && data.hasKey ? 'is-ok' : 'is-error');
       }
+      if (data && data.authRequired && !settings.token) {
+        setNetState('warn', 'Backend online', 'Access token needed — open Settings');
+        const conn = $('conn-status');
+        if (conn) {
+          conn.textContent = 'Connected — add the access token';
+          conn.className = 'conn-status is-error';
+        }
+      }
       updateModelPill();
       return data;
     } catch {
@@ -3443,6 +3470,7 @@
       tasks,
     };
     delete payload.settings.proxyUrl;
+    delete payload.settings.token;
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -3787,6 +3815,7 @@
 
     /* Settings */
     bindSetting('set-proxy', 'proxyUrl');
+    bindSetting('set-token', 'token');
     const proxyField = $('set-proxy');
     if (proxyField) {
       proxyField.addEventListener('change', () => {

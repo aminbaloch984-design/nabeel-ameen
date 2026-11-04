@@ -366,6 +366,10 @@
               <label class="field-label" for="set-proxy">Proxy endpoint</label>
               <input class="field" id="set-proxy" type="url" spellcheck="false" placeholder="http://localhost:8787/api/chat">
 
+              <label class="field-label" for="set-token">Access token (public proxy only)</label>
+              <input class="field" id="set-token" type="password" spellcheck="false" autocomplete="off" placeholder="Required only when the proxy asks for one">
+              <p class="panel__note">The token is saved in this browser only. Never put your provider API key here — that stays in the server's environment.</p>
+
               <div class="field-row">
                 <div>
                   <label class="field-label" for="set-model">Model</label>

@@ -59,7 +59,38 @@ The browser never receives the API key.
 
 A static copy is published at **https://aminbaloch984-design.github.io/nabeel-ameen/new-ai/**.
 
-GitHub Pages only serves files, so that copy has **no AI backend**: it renders the full interface and reports an honest "backend offline" state. For real answers, run `node server/server.js` locally and use `http://127.0.0.1:8787`, or point Settings → Proxy endpoint at an HTTPS proxy you control. A plain `http://127.0.0.1` endpoint will not work from an HTTPS page because browsers block mixed content.
+GitHub Pages only serves files, so by default that copy has **no AI backend**: it renders the full interface, reports an honest "backend offline" state, and refuses to send a doomed request. To make the published URL answer, run the proxy on any HTTPS host and connect the page to it (see below). A plain `http://127.0.0.1` endpoint will not work from an HTTPS page because browsers block mixed content.
+
+### Hosting the proxy (so the public page works)
+
+The proxy is plain Node with zero dependencies, so any Node host works. With [Render](https://render.com) free tier:
+
+1. Push this folder to GitHub (already done for `laptop-hub`).
+2. In Render: **New → Web Service**, connect the repo, then set:
+   - **Root Directory**: `NEW-AI/server`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+3. Add environment variables:
+
+   ```ini
+   PROVIDER_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
+   API_KEY=<your provider key>
+   DEFAULT_MODEL=gemini-3.6-flash
+   FALLBACK_MODELS=gemini-3.1-flash-lite,gemini-flash-lite-latest
+   AUTH_TOKEN=<long random string>
+   ALLOWED_ORIGIN=https://aminbaloch984-design.github.io
+   HOST=0.0.0.0
+   ```
+
+   `PORT` is supplied by the host. `AUTH_TOKEN` is what stops strangers who find the URL from spending your quota.
+4. Deploy, then copy the service URL (`https://name.onrender.com/api/chat`).
+5. On the published page open **Settings** and set:
+   - **Proxy endpoint** → your service URL
+   - **Access token** → the same `AUTH_TOKEN`
+
+   Both values stay in that browser's localStorage; the provider key never leaves the server.
+
+Free hosts sleep when idle, so the first message after a pause can take 30–60 seconds. Anyone with the token can spend your provider quota — rotate it by changing `AUTH_TOKEN` and updating Settings.
 
 ---
 
@@ -249,6 +280,7 @@ Server environment:
 | `FALLBACK_MODELS` | empty | Comma-separated models tried when the default is rate-limited. |
 | `ALLOW_NO_KEY` | `false` | Only for trusted local providers. |
 | `ALLOWED_ORIGIN` | empty | Comma-separated dev origins, optional. |
+| `AUTH_TOKEN` | empty | Bearer token required by `/api/chat` on public hosts. |
 | `REQUEST_TIMEOUT_MS` | `120000` | Upstream timeout. |
 
 ---

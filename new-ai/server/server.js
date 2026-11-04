@@ -13,6 +13,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 /* --------------------------------------------------------------------------
    Environment
@@ -69,6 +70,9 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN || '')
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean);
+// Optional shared secret for public deployments. When set, /api/chat requires
+// "Authorization: Bearer <token>", so a public URL cannot be used by strangers.
+const AUTH_TOKEN = String(process.env.AUTH_TOKEN || '').trim();
 
 const ROOT = path.resolve(__dirname, '..');
 const MAX_BODY_BYTES = 1024 * 1024;
@@ -112,7 +116,7 @@ function applyCors(req, res) {
     res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes('*') ? '*' : origin);
     res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Max-Age', '600');
     return true;
   }
@@ -122,8 +126,18 @@ function applyCors(req, res) {
   return false;
 }
 
-function readBody(req) {
-  return new Promise((resolve, reject) => {
+// When AUTH_TOKEN is configured, require it as a bearer token on the chat
+// endpoint so a public deployment is not an open door to the provider quota.
+function isAuthorized(req) {
+  if (!AUTH_TOKEN) return true;
+  const header = String(req.headers.authorization || '');
+  const token = (header.replace(/^Bearer\s+/i, '').trim() || String(req.headers['x-newai-token'] || '').trim());
+  const given = Buffer.from(token);
+  const expected = Buffer.from(AUTH_TOKEN);
+  return given.length === expected.length && crypto.timingSafeEqual(given, expected);
+}
+
+function readBody(req) {  return new Promise((resolve, reject) => {
     const chunks = [];
     let size = 0;
     req.on('data', (chunk) => {
@@ -234,6 +248,7 @@ function handleHealth(req, res) {
     hasKey: Boolean(API_KEY) || ALLOW_NO_KEY,
     auth: API_KEY ? 'api-key' : ALLOW_NO_KEY ? 'none' : 'missing',
     placeholderKey: Boolean(RAW_API_KEY) && !API_KEY,
+    authRequired: Boolean(AUTH_TOKEN),
     uptime: Math.round(process.uptime()),
   });
 }
@@ -434,6 +449,12 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (pathname === '/api/chat') {
+      if (!isAuthorized(req)) {
+        sendJSON(res, 401, {
+          error: { message: 'Access token required. Add it under Settings → Access token.' },
+        });
+        return;
+      }
       await handleChat(req, res);
       return;
     }
