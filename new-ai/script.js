@@ -289,6 +289,9 @@
     dictating: false,
     waveTarget: 0.06,
     authFailed: false,
+    activeModel: null,
+    fallbackModels: [],
+    skipModelUntil: Object.create(null),
   };
 
   let activeSessionId = localStorage.getItem(KEY.active) || null;
@@ -1062,11 +1065,18 @@
     }
   }
 
+  function humanizeRetry(raw) {
+    const hours = Number((/(\d+)\s*h/i.exec(raw) || [])[1] || 0);
+    const minutes = Number((/(\d+)\s*m/i.exec(raw) || [])[1] || 0);
+    const seconds = Math.ceil(Number((/([\d.]+)\s*s/i.exec(raw) || [])[1] || 0));
+    if (hours) return hours + 'h' + (minutes ? ' ' + minutes + 'm' : '');
+    if (minutes) return minutes + 'm';
+    return seconds + 's';
+  }
+
   function friendlyStatus(status, detail) {
-    const clean = String(detail || '')
-      .replace(/\s+/g, ' ')
-      .replace(/[.\s]+$/, '')
-      .slice(0, 240);
+    const raw = String(detail || '').replace(/\s+/g, ' ');
+    const clean = raw.replace(/[.\s]+$/, '').slice(0, 240);
     const extra = clean ? ' — ' + clean : '';
     if (status === 401 || status === 403) {
       return 'The provider rejected the API key' + extra + '. Check server/.env.';
@@ -1075,7 +1085,20 @@
       return 'The provider or model was not found' + extra + '. Check the base URL and model name.';
     }
     if (status === 429) {
-      return 'The provider rate limit was hit' + extra + '. Wait a moment and retry.';
+      // Free-tier providers usually say exactly which quota ran out and when it
+      // resets. Surface that instead of a vague "try again later".
+      const limit = /limit:\s*(\d+)/i.exec(clean);
+      const model = /model:\s*([\w.\-]+)/i.exec(clean);
+      const retry = /retry in\s*([\dhms.\s]+)/i.exec(clean);
+      const daily = /per day limit exceeded/i.test(clean);
+      let message = daily ? 'Daily quota reached' : 'Rate limit reached';
+      if (limit) {
+        message += ' (' + limit[1] + ' requests' + (daily ? '/day' : '') +
+          (model ? ' for ' + model[1] : '') + ')';
+      }
+      if (retry) message += ' — resets in about ' + humanizeRetry(retry[1]);
+      else message += ' — wait a moment and retry';
+      return message + '.';
     }
     if (status === 400) {
       return 'The provider rejected the request' + extra + '.';
@@ -1119,7 +1142,9 @@
         hint:
           error.status === 401 || error.status === 403
             ? 'The key stays on the server. Put it in <code>server/.env</code>, never in the browser.'
-            : 'Server logs may contain more detail. Do not expose secrets in the browser console.',
+            : error.status === 429
+              ? 'Free-tier quotas reset automatically. Switch the model in Settings, add billing to the key, or wait for the reset shown above.'
+              : 'Server logs may contain more detail. Do not expose secrets in the browser console.',
       };
     }
     return {
@@ -1128,13 +1153,14 @@
     };
   }
 
-  async function callChat(messages, { signal, onDelta, streamOverride } = {}) {
+  // One request against one model. callChat() wraps this with quota fallback.
+  async function callChatOnce(messages, { signal, onDelta, streamOverride, model } = {}) {
     if (!settings.proxyUrl) {
       throw new ApiError('No AI endpoint is configured. Open Settings and add a proxy URL.', 0);
     }
     const wantsStream = streamOverride === undefined ? Boolean(settings.streaming) : Boolean(streamOverride);
     const body = {
-      model: settings.model,
+      model: model || settings.model,
       messages,
       temperature: Number(settings.temperature),
       max_tokens: Number(settings.maxTokens),
@@ -1244,6 +1270,71 @@
     }
     if (onDelta) onDelta(text);
     return text;
+  }
+
+  function retryDelayMs(raw) {
+    const hours = Number((/(\d+)\s*h/i.exec(raw) || [])[1] || 0);
+    const minutes = Number((/(\d+)\s*m/i.exec(raw) || [])[1] || 0);
+    const seconds = Number((/([\d.]+)\s*s/i.exec(raw) || [])[1] || 0);
+    return ((hours * 60 + minutes) * 60 + seconds) * 1000;
+  }
+
+  // Free-tier providers can refuse a model for the day while another model on
+  // the same key still has quota. The server lists those fallbacks in
+  // /api/health, so a quota error becomes a slower answer instead of a dead end.
+  async function callChat(messages, opts = {}) {
+    const primary = settings.model;
+    const fallbacks = (runtime.fallbackModels || []).filter((name) => name && name !== primary);
+    const skipPrimary =
+      fallbacks.length > 0 &&
+      runtime.skipModelUntil &&
+      runtime.skipModelUntil[primary] > Date.now();
+    const candidates = skipPrimary ? [...fallbacks, primary] : [primary, ...fallbacks];
+    let produced = false;
+    let lastError = null;
+
+    for (let index = 0; index < candidates.length; index += 1) {
+      const model = candidates[index];
+      try {
+        const text = await callChatOnce(messages, {
+          signal: opts.signal,
+          streamOverride: opts.streamOverride,
+          model,
+          onDelta: opts.onDelta
+            ? (delta) => {
+                produced = true;
+                opts.onDelta(delta);
+              }
+            : undefined,
+        });
+        const changed = runtime.activeModel !== model;
+        runtime.activeModel = model;
+        if (model !== primary && changed) {
+          toast('“' + primary + '” is out of quota — answering with “' + model + '”.');
+        }
+        updateModelPill();
+        return text;
+      } catch (error) {
+        lastError = error;
+        const status = error instanceof ApiError ? error.status : 0;
+        if (status === 429) {
+          // Remember when this model resets so the next message skips it.
+          const raw = String((error && error.detail) || '');
+          const wait = retryDelayMs((/retry in\s*([\dhms.\s]+)/i.exec(raw) || [])[1] || '');
+          runtime.skipModelUntil = runtime.skipModelUntil || Object.create(null);
+          runtime.skipModelUntil[model] = Date.now() + Math.min(wait, 24 * 60 * 60 * 1000);
+        }
+        const retryable = status === 429 || status === 503;
+        const canRetry =
+          retryable &&
+          !produced &&
+          !(opts.signal && opts.signal.aborted) &&
+          index < candidates.length - 1;
+        if (!canRetry) throw error;
+      }
+    }
+
+    throw lastError || new ApiError('The provider returned no response.');
   }
 
   /* =====================================================================
@@ -3007,9 +3098,15 @@
 
   function updateModelPill() {
     const text = $('model-pill-text');
-    if (text) text.textContent = settings.model ? truncate(settings.model, 28) : 'no model';
+    const showing = runtime.activeModel || settings.model;
+    if (text) text.textContent = showing ? truncate(showing, 28) : 'no model';
     const pill = $('model-pill');
-    if (pill) pill.title = 'Active model: ' + (settings.model || 'none');
+    if (pill) {
+      const fallback = runtime.activeModel && runtime.activeModel !== settings.model;
+      pill.title = fallback
+        ? 'Answering with ' + runtime.activeModel + ' because ' + settings.model + ' ran out of quota'
+        : 'Active model: ' + (settings.model || 'none');
+    }
   }
 
   function applySettingsToForm() {
@@ -3208,6 +3305,10 @@
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
 
+      runtime.fallbackModels = Array.isArray(data && data.fallbackModels)
+        ? data.fallbackModels.filter((name) => typeof name === 'string' && name.trim())
+        : [];
+
       // Until the user picks a model, follow the server's DEFAULT_MODEL so a
       // provider switch in server/.env does not leave a stale model behind.
       // A leftover built-in default is also replaced, even if it was stored
@@ -3220,6 +3321,7 @@
         (!settings.modelTouched || builtInDefault)
       ) {
         settings.model = data.model;
+        runtime.activeModel = null;
         saveSettings();
         updateModelPill();
         const modelField = $('set-model');
@@ -3653,6 +3755,7 @@
     bindSetting('set-model', 'model', {
       after: () => {
         settings.modelTouched = true;
+        runtime.activeModel = null;
         saveSettings();
         updateModelPill();
       },

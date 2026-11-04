@@ -57,6 +57,12 @@ const RAW_API_KEY = String(process.env.API_KEY || '').trim();
 const API_KEY = PLACEHOLDER_KEYS.has(RAW_API_KEY.toLowerCase()) ? '' : RAW_API_KEY;
 const BASE_URL = (process.env.PROVIDER_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 const DEFAULT_MODEL = process.env.DEFAULT_MODEL || 'gpt-4o-mini';
+// Extra models tried by the browser when the default one is rate-limited.
+// They must be models the same provider/key can serve.
+const FALLBACK_MODELS = (process.env.FALLBACK_MODELS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter((value) => value && value !== DEFAULT_MODEL);
 const ALLOW_NO_KEY = String(process.env.ALLOW_NO_KEY || 'false').toLowerCase() === 'true';
 const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS) || 120000;
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN || '')
@@ -224,6 +230,7 @@ function handleHealth(req, res) {
     app: 'NEW AI',
     provider,
     model: DEFAULT_MODEL,
+    fallbackModels: FALLBACK_MODELS,
     hasKey: Boolean(API_KEY) || ALLOW_NO_KEY,
     auth: API_KEY ? 'api-key' : ALLOW_NO_KEY ? 'none' : 'missing',
     placeholderKey: Boolean(RAW_API_KEY) && !API_KEY,

@@ -91,7 +91,10 @@ For Google AI Studio (Gemini), create a key at `aistudio.google.com`. Gemini kee
 PROVIDER_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 API_KEY=AQ.your-google-ai-studio-key
 DEFAULT_MODEL=gemini-3.6-flash
+FALLBACK_MODELS=gemini-3.1-flash-lite,gemini-flash-lite-latest
 ```
+
+Google AI Studio's free tier allows only a small number of requests per model per day (currently 20 for `gemini-3.6-flash`). When that quota runs out the provider answers `429`. `FALLBACK_MODELS` is a comma-separated list the app tries in order before it gives up, so a busy default model becomes a slower answer instead of an error. The app also remembers when the model resets and skips it until then. Leave the setting empty to disable fallback.
 
 Newer Gemini models spend part of the token budget on internal reasoning, so raise **Max output tokens** to 2048 or more in Settings if long answers get cut off. If a model ID stops working, the provider error names its replacement.
 
@@ -243,6 +246,7 @@ Server environment:
 | `PROVIDER_BASE_URL` | OpenAI | No trailing slash. |
 | `API_KEY` | empty | Required unless `ALLOW_NO_KEY=true`. |
 | `DEFAULT_MODEL` | `gpt-4o-mini` | Used by health fallback. |
+| `FALLBACK_MODELS` | empty | Comma-separated models tried when the default is rate-limited. |
 | `ALLOW_NO_KEY` | `false` | Only for trusted local providers. |
 | `ALLOWED_ORIGIN` | empty | Comma-separated dev origins, optional. |
 | `REQUEST_TIMEOUT_MS` | `120000` | Upstream timeout. |
