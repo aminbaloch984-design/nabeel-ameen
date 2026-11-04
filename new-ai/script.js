@@ -79,7 +79,7 @@
   // True when the page is hosted somewhere public and the user has not pointed
   // Settings at a proxy of their own. Such a page cannot answer at all.
   const isStaticDemo = () =>
-    !isLocalHost() && settings.proxyUrl === defaultProxyUrl();
+    !isLocalHost() && !HOSTED_PROXY && settings.proxyUrl === defaultProxyUrl();
 
   /* =====================================================================
      Storage
@@ -209,14 +209,13 @@
      ===================================================================== */
 
   // Filled in once the proxy is deployed (for example
-  // https://new-ai-proxy.onrender.com/api/chat). Public pages use it
+  // https://nabeel-ameen.onrender.com/api/chat). Public pages use it
   // automatically so visitors do not have to type an endpoint.
-  const HOSTED_PROXY = '';
+  const HOSTED_PROXY = 'https://nabeel-ameen.loca.lt/api/chat';
 
   function defaultProxyUrl() {
-    const localHost = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/i.test(location.hostname);
     const web = location.protocol === 'http:' || location.protocol === 'https:';
-    if (web && !localHost && HOSTED_PROXY) return HOSTED_PROXY;
+    if (web && !isLocalHost() && HOSTED_PROXY) return HOSTED_PROXY;
     if (web) return location.origin + '/api/chat';
     return 'http://localhost:8787/api/chat';
   }
@@ -264,7 +263,14 @@
     merged.context = clamp(Number(merged.context) || 24, 6, 60);
     merged.rate = clamp(Number(merged.rate) || 1, 0.5, 2);
     merged.pitch = clamp(Number(merged.pitch) || 1, 0.5, 2);
-    if (!merged.proxyUrl) merged.proxyUrl = defaultProxyUrl();
+    // A static host serves no API, so a saved same-origin endpoint would fail.
+    // Once a hosted proxy is configured, quietly switch such browsers to it.
+    const sameOriginProxy =
+      (location.protocol === 'http:' || location.protocol === 'https:') &&
+      merged.proxyUrl === location.origin + '/api/chat';
+    if (!merged.proxyUrl || (HOSTED_PROXY && sameOriginProxy && !isLocalHost())) {
+      merged.proxyUrl = defaultProxyUrl();
+    }
     merged.token = String(merged.token || '').trim();
     return merged;
   }

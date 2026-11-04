@@ -83,7 +83,7 @@ The proxy is plain Node with zero dependencies, so any Node host works. With [Re
    ```
 
    `PORT` is supplied by the host. `AUTH_TOKEN` is what stops strangers who find the URL from spending your quota.
-4. Deploy, then copy the service URL (`https://name.onrender.com/api/chat`).
+4. Deploy, then copy the service URL (`https://nabeel-ameen.onrender.com/api/chat`).
 5. On the published page open **Settings** and set:
    - **Proxy endpoint** → your service URL
    - **Access token** → the same `AUTH_TOKEN`
