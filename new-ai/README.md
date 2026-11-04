@@ -55,6 +55,12 @@ The browser never receives the API key.
 
 > Opening `index.html` directly with `file://` works for the UI, but the default endpoint becomes `http://localhost:8787/api/chat`. For voice and clipboard features, use `http://127.0.0.1:8787` (a secure context) rather than a file URL.
 
+### Hosted demo
+
+A static copy is published at **https://aminbaloch984-design.github.io/nabeel-ameen/new-ai/**.
+
+GitHub Pages only serves files, so that copy has **no AI backend**: it renders the full interface and reports an honest "backend offline" state. For real answers, run `node server/server.js` locally and use `http://127.0.0.1:8787`, or point Settings → Proxy endpoint at an HTTPS proxy you control. A plain `http://127.0.0.1` endpoint will not work from an HTTPS page because browsers block mixed content.
+
 ---
 
 ## 2. Supported providers
