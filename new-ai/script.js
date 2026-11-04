@@ -1087,10 +1087,10 @@
     if (status === 429) {
       // Free-tier providers usually say exactly which quota ran out and when it
       // resets. Surface that instead of a vague "try again later".
-      const limit = /limit:\s*(\d+)/i.exec(clean);
-      const model = /model:\s*([\w.\-]+)/i.exec(clean);
-      const retry = /retry in\s*([\dhms.\s]+)/i.exec(clean);
-      const daily = /per day limit exceeded/i.test(clean);
+      const limit = /limit:\s*(\d+)/i.exec(raw);
+      const model = /model:\s*([\w.\-]+)/i.exec(raw);
+      const retry = /retry in\s*([\dhms.\s]+)/i.exec(raw);
+      const daily = /per day limit exceeded/i.test(raw);
       let message = daily ? 'Daily quota reached' : 'Rate limit reached';
       if (limit) {
         message += ' (' + limit[1] + ' requests' + (daily ? '/day' : '') +
