@@ -220,6 +220,28 @@
     return 'http://localhost:8787/api/chat';
   }
 
+  // The public page talks to a tunnel that gets a new address whenever the
+  // host restarts. proxy.json sits next to this page and carries the current
+  // endpoint, so the published link keeps working without editing code.
+  async function syncHostedProxy() {
+    if (isLocalHost()) return false;
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return false;
+    let data = null;
+    try {
+      const res = await fetch('proxy.json?ts=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return false;
+      data = await res.json();
+    } catch {
+      return false;
+    }
+    const url = data && typeof data.url === 'string' ? data.url.trim() : '';
+    if (!/^https:\/\/[^\s]+$/i.test(url) || url === settings.proxyUrl) return false;
+    settings.proxyUrl = url;
+    saveSettings();
+    applySettingsToForm();
+    return true;
+  }
+
   const DEFAULT_SETTINGS = {
     proxyUrl: defaultProxyUrl(),
     token: '',
@@ -3975,7 +3997,11 @@
     bindEvents();
     startWaveform();
     switchView('chat');
-    checkBackend();
+    if (isLocalHost()) {
+      checkBackend();
+    } else {
+      syncHostedProxy().then(checkBackend, checkBackend);
+    }
     setVoiceState(runtime.wakeMode ? 'wake' : 'idle');
 
     if (!settings.proxyUrl) {
