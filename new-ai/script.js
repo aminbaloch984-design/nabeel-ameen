@@ -76,6 +76,11 @@
     return /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/i.test(location.hostname);
   };
 
+  // True when the page is hosted somewhere public and the user has not pointed
+  // Settings at a proxy of their own. Such a page cannot answer at all.
+  const isStaticDemo = () =>
+    !isLocalHost() && settings.proxyUrl === defaultProxyUrl();
+
   /* =====================================================================
      Storage
      ===================================================================== */
@@ -1103,6 +1108,9 @@
     if (status === 400) {
       return 'The provider rejected the request' + extra + '.';
     }
+    if (status === 405) {
+      return 'This page was served by a static host, which does not accept chat requests. Run the local server instead.';
+    }
     if (status === 503) {
       return 'The AI backend is not ready' + extra + '.';
     }
@@ -1526,7 +1534,9 @@
     if (status) {
       status.textContent = runtime.busy
         ? 'NEW AI is working…'
-        : 'NEW AI can make mistakes. Verify important information.';
+        : isStaticDemo()
+          ? 'Static demo — run node server/server.js, then open http://127.0.0.1:8787'
+          : 'NEW AI can make mistakes. Verify important information.';
     }
   }
 
@@ -1711,6 +1721,38 @@
     }
     if (trimmed.length > 24000) {
       toast('That message is too long. Split it into smaller parts.', 'error');
+      return '';
+    }
+
+    // Do not fire a doomed POST at a static host: GitHub Pages answers 405 and
+    // the user sees a confusing "AI backend" error. Say what to do instead.
+    if (isStaticDemo()) {
+      let session = getSession();
+      if (!session) session = createSession();
+      session.messages.push({
+        id: uid(),
+        role: 'user',
+        content: trimmed,
+        createdAt: Date.now(),
+        meta: { via: opts.viaVoice ? 'voice' : 'text' },
+      });
+      session.messages.push({
+        id: uid(),
+        role: 'assistant',
+        content: '',
+        createdAt: Date.now(),
+        meta: {
+          error: {
+            message: 'This published copy is a static demo, so it has no AI backend.',
+            hint:
+              'Run <code>node server/server.js</code> inside the <code>NEW-AI</code> folder, then open <code>http://127.0.0.1:8787</code>. A github.io page cannot host a server. Never paste a provider API key into a public page.',
+          },
+        },
+      });
+      session.updatedAt = Date.now();
+      saveSessions();
+      renderSessionList();
+      renderChat({ stick: true });
       return '';
     }
 
@@ -3274,6 +3316,7 @@
     }
     const modelText = $('model-pill-text');
     if (modelText) modelText.textContent = 'no backend';
+    updateComposerState();
   }
 
   async function checkBackend() {
@@ -3291,7 +3334,6 @@
       markBackendOffline('Static demo — set an HTTPS proxy in Settings');
       return null;
     }
-
     setNetState('busy', 'Checking backend…', 'AI connection');
 
     const controller = new AbortController();
