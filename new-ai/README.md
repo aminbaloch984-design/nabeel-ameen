@@ -84,6 +84,11 @@ the page once with `#t=<token>` appended, which stores it and cleans the URL).
 | Tunnel + proxy logs | `%LOCALAPPDATA%\newai\cloudflared.*.log` |
 | Autostart at logon | `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\NEW AI public link.cmd` |
 
+Cloudflare can reclaim an account-less quick tunnel at any time ("Tunnel not
+found"). `watch-public.ps1` checks the current address every two minutes and
+re-runs the launcher when it stops answering, so a fresh tunnel gets published
+without manual work. Both scripts start together from the shortcut above.
+
 Remove the autostart entry by deleting that `.cmd` file. This route needs the
 PC switched on: when it is off the link reports that the backend is unreachable.
 For an always-on URL use the hosted proxy below.
