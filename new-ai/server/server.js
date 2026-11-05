@@ -322,15 +322,25 @@ async function handleChat(req, res) {
     };
     if (API_KEY) headers.Authorization = 'Bearer ' + API_KEY;
 
-    const upstream = await fetch(BASE_URL + '/chat/completions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(upstreamBody),
-      signal: controller.signal,
-    });
-
-    if (!upstream.ok) {
-      const text = await upstream.text();
+    // Free tiers often refuse one model for the day or briefly overload it
+    // while another model on the same key still answers, so walk the
+    // configured fallbacks before giving up. Nothing has been written to the
+    // client yet, which keeps this safe for streaming requests too.
+    const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+    const candidates = [model, ...FALLBACK_MODELS.filter((name) => name && name !== model)];
+    let upstream = null;
+    for (let index = 0; index < candidates.length; index += 1) {
+      const attempt = await fetch(BASE_URL + '/chat/completions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ...upstreamBody, model: candidates[index] }),
+        signal: controller.signal,
+      });
+      if (attempt.ok) {
+        upstream = attempt;
+        break;
+      }
+      const text = await attempt.text();
       let detail = text;
       try {
         const parsed = JSON.parse(text);
@@ -342,13 +352,21 @@ async function handleChat(req, res) {
       } catch {
         /* keep text */
       }
-      const status = upstream.status >= 400 && upstream.status < 600 ? upstream.status : 502;
-      sendJSON(res, status, {
-        error: {
-          message: redact(String(detail || 'The provider rejected the request.')).slice(0, 1200),
-          status,
-        },
-      });
+      const status = attempt.status >= 400 && attempt.status < 600 ? attempt.status : 502;
+      if (!RETRYABLE.has(status) || index === candidates.length - 1) {
+        sendJSON(res, status, {
+          error: {
+            message: redact(String(detail || 'The provider rejected the request.')).slice(0, 1200),
+            status,
+            modelsTried: candidates.slice(0, index + 1),
+          },
+        });
+        return;
+      }
+    }
+
+    if (!upstream) {
+      sendJSON(res, 502, { error: { message: 'No configured model could answer right now.' } });
       return;
     }
 

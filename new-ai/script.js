@@ -1402,7 +1402,7 @@
           runtime.skipModelUntil = runtime.skipModelUntil || Object.create(null);
           runtime.skipModelUntil[model] = Date.now() + Math.min(wait, 24 * 60 * 60 * 1000);
         }
-        const retryable = status === 429 || status === 503;
+        const retryable = status === 429 || status === 503 || status === 504;
         const canRetry =
           retryable &&
           !produced &&
