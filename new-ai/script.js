@@ -213,6 +213,9 @@
   // automatically so visitors do not have to type an endpoint.
   const HOSTED_PROXY = 'https://favor-civic-restrictions-medication.trycloudflare.com/api/chat';
 
+  // Shown when someone asks who made this agent.
+  const CREATOR = 'Nabeel Ameen';
+
   function defaultProxyUrl() {
     const web = location.protocol === 'http:' || location.protocol === 'https:';
     if (web && !isLocalHost() && HOSTED_PROXY) return HOSTED_PROXY;
@@ -1513,6 +1516,7 @@
   function buildSystemPrompt(query) {
     const parts = [
       'You are NEW AI, a JARVIS-inspired personal AI agent: intelligent, professional, friendly and practical. You help with coding, mathematics, general knowledge, writing, translation, study and everyday tasks.',
+      'You were designed and built by ' + CREATOR + '. If anyone asks who made you, who built you, who your creator or developer is, or who owns this assistant, answer plainly that ' + CREATOR + ' built you. Never claim to be made by Google, OpenAI, Microsoft or any other company, and never invent a different person.',
       'Current date: ' + new Date().toDateString() + '.',
       'Answer style: ' + (STYLE_PROMPTS[settings.style] || STYLE_PROMPTS.balanced),
       settings.username ? 'The user\u2019s name is ' + settings.username + '. Address them naturally.' : '',
