@@ -298,6 +298,22 @@
   }
 
   let settings = normalizeSettings(readJSON(KEY.settings, {}));
+
+  // A shared link can carry the access token in the fragment (#t=…). Browsers
+  // never send the fragment to a server, so the token stays out of logs and
+  // requests: it is stored once, then removed from the address bar.
+  (function adoptTokenFromLink() {
+    const match = /(?:^|[#&])t(?:oken)?=([A-Za-z0-9_-]{8,})/.exec(location.hash || '');
+    if (!match) return;
+    settings.token = match[1];
+    writeJSON(KEY.settings, settings);
+    try {
+      history.replaceState(null, '', location.pathname + location.search);
+    } catch {
+      /* older browsers keep the fragment; harmless */
+    }
+  })();
+
   let sessions = readJSON(KEY.sessions, []);
   let memories = readJSON(KEY.memories, []);
   let tasks = readJSON(KEY.tasks, []);
@@ -1120,6 +1136,11 @@
     const clean = raw.replace(/[.\s]+$/, '').slice(0, 240);
     const extra = clean ? ' — ' + clean : '';
     if (status === 401 || status === 403) {
+      // The proxy rejects requests without its bearer token; that is not a
+      // provider problem, so do not blame the API key.
+      if (/access token/i.test(raw)) {
+        return 'This proxy needs an access token. Open Settings → Access token and paste the shared token.';
+      }
       return 'The provider rejected the API key' + extra + '. Check server/.env.';
     }
     if (status === 404) {
