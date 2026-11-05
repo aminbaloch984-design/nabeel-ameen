@@ -4018,7 +4018,20 @@
      Init
      ===================================================================== */
 
+  // Installing the icon on a phone needs a service worker, and browsers only
+  // allow it on https or localhost. A failure here is harmless: the app still
+  // works in the normal browser tab.
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    const secure = location.protocol === 'https:' || isLocalHost();
+    if (!secure) return;
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => undefined);
+    });
+  }
+
   function init() {
+    registerServiceWorker();
     initSpeech();
     applySettingsToForm();
     renderToolList();
