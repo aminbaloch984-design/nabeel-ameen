@@ -1412,6 +1412,18 @@
       }
     }
 
+    // The published page follows a tunnel that can be replaced at any time.
+    // If the request died before producing output, pick up the new address and
+    // try once more instead of showing a dead-end error.
+    const unreachable =
+      lastError && !produced && lastError.status === 0 && !(opts.signal && opts.signal.aborted);
+    if (unreachable && !opts.retriedProxy) {
+      const switched = await syncHostedProxy();
+      if (switched) {
+        return callChat(messages, Object.assign({}, opts, { retriedProxy: true }));
+      }
+    }
+
     throw lastError || new ApiError('The provider returned no response.');
   }
 
