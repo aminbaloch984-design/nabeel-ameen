@@ -63,14 +63,20 @@ GitHub Pages only serves files, so by default that copy has **no AI backend**: i
 
 ### Temporary public link (this machine, no account)
 
-`start-public.ps1` starts the proxy on port 8788 with an access token, opens a
-Cloudflare quick tunnel, and writes the current address to `new-ai/proxy.json`
-in the published copy. The page reads that file on load, so the same link keeps
-working after a restart even though the tunnel address changes.
+`start-public.ps1` starts the proxy on port 8788, opens a Cloudflare quick
+tunnel, and writes the current address to `new-ai/proxy.json` in the published
+copy. The page reads that file on load, so the same link keeps working after a
+restart even though the tunnel address changes.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File start-public.ps1
+powershell -ExecutionPolicy Bypass -File start-public.ps1          # open link
+powershell -ExecutionPolicy Bypass -File start-public.ps1 -Protect # token required
 ```
+
+Without `-Protect` anyone who opens the published link can chat and spend the
+provider quota; use `-Protect` if that matters, then paste the token from
+`%LOCALAPPDATA%\newai\public-token.txt` into Settings → Access token (or open
+the page once with `#t=<token>` appended, which stores it and cleans the URL).
 
 | Item | Where |
 | --- | --- |
