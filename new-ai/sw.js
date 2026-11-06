@@ -1,11 +1,11 @@
-/* NEW AI service worker.
+﻿/* NEW AI service worker.
  *
  * The app shell is cached so the installed icon opens instantly (and still
  * shows its UI offline). Everything that talks to the AI provider stays
  * network-only: cached chat answers would be fake answers.
  */
 
-const VERSION = 'new-ai-v3';
+const VERSION = 'new-ai-v4';
 const SHELL = [
   './',
   './index.html',
