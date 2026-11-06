@@ -352,6 +352,10 @@
     activeModel: null,
     fallbackModels: [],
     skipModelUntil: Object.create(null),
+    // Photos waiting to be sent with the next chat message.
+    attachments: [],
+    imageInput: true,
+    imageEditing: false,
   };
 
   let activeSessionId = localStorage.getItem(KEY.active) || null;
@@ -363,6 +367,21 @@
     writeJSON(KEY.settings, settings);
   }
   function saveSessions() {
+    if (writeJSON(KEY.sessions, sessions)) return;
+    // Photos are stored inline, so a long history can exceed the ~5 MB quota.
+    // Keep only the newest few pictures and retry once instead of losing chats.
+    let kept = 0;
+    for (const session of sessions) {
+      for (let index = session.messages.length - 1; index >= 0; index -= 1) {
+        const images = session.messages[index].meta && session.messages[index].meta.images;
+        if (!images || !images.length) continue;
+        if (kept >= 4) {
+          delete session.messages[index].meta.images;
+        } else {
+          kept += 1;
+        }
+      }
+    }
     writeJSON(KEY.sessions, sessions);
   }
   function saveMemories() {
@@ -764,9 +783,28 @@
     );
   }
 
+  function imagesHtml(images) {
+    if (!Array.isArray(images) || !images.length) return '';
+    return (
+      '<div class="msg__images">' +
+      images
+        .map(
+          (src) =>
+            '<img src="' +
+            escapeHtml(src) +
+            '" alt="Attached photo" loading="lazy" data-view-image="' +
+            escapeHtml(src) +
+            '">'
+        )
+        .join('') +
+      '</div>'
+    );
+  }
+
   function messageHtml(message) {
     const isUser = message.role === 'user';
     const error = message.meta && message.meta.error;
+    const images = (message.meta && message.meta.images) || [];
     const raw = String(message.content || '');
     let bubble;
 
@@ -777,7 +815,12 @@
         '</div>' +
         (error.hint ? '<div class="msg__error-hint">' + error.hint + '</div>' : '');
     } else if (isUser) {
-      bubble = escapeHtml(raw).replace(/\n/g, '<br>');
+      const text = raw
+        ? escapeHtml(raw).replace(/\n/g, '<br>')
+        : images.length
+          ? '<span class="muted">Photo</span>'
+          : '';
+      bubble = imagesHtml(images) + text;
     } else if (message.streaming && !raw.trim()) {
       bubble = '<span class="typing"><span></span><span></span><span></span></span>';
     } else {
@@ -1573,7 +1616,7 @@
       content: buildSystemPrompt(lastUser ? lastUser.content : ''),
     };
 
-    const history = session.messages
+    const picked = session.messages
       .filter((message) => {
         if (message.id === excludeId) return false;
         if (message.meta && message.meta.error) return false;
@@ -1584,20 +1627,37 @@
         }
         return true;
       })
-      .slice(-Math.max(6, settings.context))
-      .map((message) => {
-        let content = String(message.content || '');
-        if (
-          message.role === 'assistant' &&
-          !content.trim() &&
-          message.meta &&
-          message.meta.tools &&
-          message.meta.tools.length
-        ) {
-          content = '[Requested tool: ' + message.meta.tools.map((tool) => tool.name).join(', ') + ']';
-        }
-        return { role: message.role, content: truncate(content, 24000) };
-      });
+      .slice(-Math.max(6, settings.context));
+
+    const tail = picked.length - 1;
+    const history = picked.map((message, index) => {
+      let content = String(message.content || '');
+      if (
+        message.role === 'assistant' &&
+        !content.trim() &&
+        message.meta &&
+        message.meta.tools &&
+        message.meta.tools.length
+      ) {
+        content = '[Requested tool: ' + message.meta.tools.map((tool) => tool.name).join(', ') + ']';
+      }
+
+      const images = (message.meta && message.meta.images) || [];
+      // Send the actual pixels only for the newest user turn. Older photos stay
+      // as a text note so a long conversation does not resend megabytes.
+      if (index === tail && message.role === 'user' && images.length && runtime.imageInput) {
+        const parts = [
+          { type: 'text', text: truncate(content, 24000) || 'Describe this image in detail.' },
+        ];
+        images.slice(0, 4).forEach((url) => {
+          parts.push({ type: 'image_url', image_url: { url } });
+        });
+        return { role: 'user', content: parts };
+      }
+
+      if (images.length) content += '\n[photo attached earlier]';
+      return { role: message.role, content: truncate(content, 24000) };
+    });
 
     return [system, ...history];
   }
@@ -1797,7 +1857,10 @@
 
   async function sendMessage(text, opts = {}) {
     const trimmed = String(text || '').trim();
-    if (!trimmed) return '';
+    const images = Array.isArray(opts.images)
+      ? opts.images.filter((url) => typeof url === 'string' && /^data:image\//.test(url)).slice(0, 4)
+      : [];
+    if (!trimmed && !images.length) return '';
     if (runtime.busy || runtime.agentRunning) {
       toast('NEW AI is busy. Stop the current run first.');
       return '';
@@ -1817,7 +1880,7 @@
         role: 'user',
         content: trimmed,
         createdAt: Date.now(),
-        meta: { via: opts.viaVoice ? 'voice' : 'text' },
+        meta: { via: opts.viaVoice ? 'voice' : 'text', images: images.length ? images : undefined },
       });
       session.messages.push({
         id: uid(),
@@ -1847,7 +1910,7 @@
       role: 'user',
       content: trimmed,
       createdAt: Date.now(),
-      meta: { via: opts.viaVoice ? 'voice' : 'text' },
+      meta: { via: opts.viaVoice ? 'voice' : 'text', images: images.length ? images : undefined },
     };
     session.messages.push(userMessage);
 
@@ -1855,7 +1918,7 @@
       (message) => message.role === 'user' && !(message.meta && message.meta.hidden)
     ).length;
     if (userCount === 1) {
-      session.title = truncate(trimmed.replace(/\s+/g, ' '), 70);
+      session.title = truncate((trimmed || 'Photo').replace(/\s+/g, ' '), 70);
     }
     session.updatedAt = Date.now();
     saveSessions();
@@ -1865,6 +1928,8 @@
     const input = $('prompt-input');
     if (input) input.value = '';
     autoResizeComposer();
+    runtime.attachments = [];
+    renderAttachStrip();
 
     runtime.busy = true;
     updateComposerState();
@@ -3434,6 +3499,9 @@
       runtime.fallbackModels = Array.isArray(data && data.fallbackModels)
         ? data.fallbackModels.filter((name) => typeof name === 'string' && name.trim())
         : [];
+      runtime.imageInput = !(data && data.imageInput === false);
+      runtime.imageEditing = Boolean(data && data.imageEditing);
+      refreshImageCapability();
 
       // Until the user picks a model, follow the server's DEFAULT_MODEL so a
       // provider switch in server/.env does not leave a stale model behind.
@@ -3610,7 +3678,7 @@
      ===================================================================== */
 
   function switchView(name) {
-    const valid = ['chat', 'agent', 'voice', 'memory', 'settings'];
+    const valid = ['chat', 'agent', 'voice', 'studio', 'memory', 'settings'];
     if (!valid.includes(name)) name = 'chat';
     qsa('.view').forEach((view) => {
       view.classList.toggle('is-active', view.id === 'view-' + name);
@@ -3632,6 +3700,11 @@
       renderAgentResult();
     }
     if (name === 'voice') updateVoiceButtons();
+    if (name === 'studio') {
+      renderVideoStrip();
+      refreshImageCapability();
+      if (studio.img) renderStudio();
+    }
     if (name === 'settings') {
       applySettingsToForm();
       renderToolList();
@@ -3658,6 +3731,850 @@
     const scrim = $('sidebar-scrim');
     if (sidebar) sidebar.classList.remove('is-open');
     if (scrim) scrim.hidden = true;
+  }
+
+  /* =====================================================================
+     Photos: attach, compress and view
+     ===================================================================== */
+
+  const MAX_ATTACHMENTS = 4;
+  const ATTACH_MAX_EDGE = 1280;
+
+  function attachmentDataUrls() {
+    return runtime.attachments.map((item) => item.dataUrl);
+  }
+
+  function renderAttachStrip() {
+    const strip = $('attach-strip');
+    if (!strip) return;
+    if (!runtime.attachments.length) {
+      strip.hidden = true;
+      strip.innerHTML = '';
+      return;
+    }
+    strip.hidden = false;
+    strip.innerHTML = runtime.attachments
+      .map(
+        (item) =>
+          '<div class="attach-chip" title="' +
+          escapeHtml(item.name || 'photo') +
+          '"><img src="' +
+          escapeHtml(item.dataUrl) +
+          '" alt=""><button class="attach-chip__remove" type="button" data-remove-attach="' +
+          item.id +
+          '" aria-label="Remove photo"><svg class="icon"><use href="#i-x"></use></svg></button></div>'
+      )
+      .join('');
+  }
+
+  function loadImageElement(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('That file is not an image this browser can read.'));
+      img.src = src;
+    });
+  }
+
+  async function decodeImageFile(file) {
+    if (typeof createImageBitmap === 'function') {
+      try {
+        return await createImageBitmap(file, { imageOrientation: 'from-image' });
+      } catch {
+        /* fall back to an <img> below */
+      }
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await loadImageElement(url);
+      return img;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+  }
+
+  // Phone cameras produce 3-12 MB photos. Compress before anything leaves the
+  // browser so a chat turn stays small and the server body limit is never hit.
+  async function compressImageFile(file, maxEdge = ATTACH_MAX_EDGE, quality = 0.82) {
+    if (!file || !/^image\//.test(file.type || '')) {
+      throw new Error('Choose an image file (JPG, PNG or WebP).');
+    }
+    const source = await decodeImageFile(file);
+    const width = source.width || source.naturalWidth;
+    const height = source.height || source.naturalHeight;
+    if (!width || !height) throw new Error('The image has no readable size.');
+
+    const scale = Math.min(1, maxEdge / Math.max(width, height));
+    const outW = Math.max(1, Math.round(width * scale));
+    const outH = Math.max(1, Math.round(height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    ctx.drawImage(source, 0, 0, outW, outH);
+    if (source.close) source.close();
+
+    return {
+      dataUrl: canvas.toDataURL('image/jpeg', quality),
+      width: outW,
+      height: outH,
+    };
+  }
+
+  async function addAttachmentFiles(files) {
+    const list = Array.from(files || []).filter((file) => /^image\//.test(file.type || ''));
+    if (!list.length) {
+      toast('Choose an image file (JPG, PNG or WebP).', 'error');
+      return;
+    }
+    for (const file of list) {
+      if (runtime.attachments.length >= MAX_ATTACHMENTS) {
+        toast('Up to ' + MAX_ATTACHMENTS + ' photos per message.');
+        break;
+      }
+      try {
+        const shot = await compressImageFile(file);
+        runtime.attachments.push({
+          id: uid(),
+          name: file.name || 'photo.jpg',
+          dataUrl: shot.dataUrl,
+          width: shot.width,
+          height: shot.height,
+        });
+      } catch (error) {
+        toast(file.name + ': ' + (error.message || 'could not read this photo.'), 'error');
+      }
+    }
+    renderAttachStrip();
+  }
+
+  function openImageViewer(src) {
+    let viewer = document.querySelector('.image-viewer');
+    if (!viewer) {
+      viewer = document.createElement('div');
+      viewer.className = 'image-viewer';
+      viewer.hidden = true;
+      viewer.innerHTML = '<img alt="Photo preview">';
+      viewer.addEventListener('click', () => {
+        viewer.hidden = true;
+      });
+      document.body.appendChild(viewer);
+    }
+    const img = viewer.querySelector('img');
+    if (img) img.src = src;
+    viewer.hidden = false;
+  }
+
+  /* =====================================================================
+     Studio — local photo editor, photo-to-video and AI edit
+     ===================================================================== */
+
+  const studio = {
+    img: null,
+    rotate: 0,
+    flipH: false,
+    flipV: false,
+    preset: '',
+    video: [],
+    recording: false,
+    recorder: null,
+    chunks: [],
+    cancelled: false,
+    resultUrl: '',
+    aiSource: '',
+    aiResult: '',
+  };
+
+  function studioFilter() {
+    const brightness = Number(($('studio-brightness') || {}).value) || 100;
+    const contrast = Number(($('studio-contrast') || {}).value) || 100;
+    const saturation = Number(($('studio-saturation') || {}).value) || 100;
+    const blur = Number(($('studio-blur') || {}).value) || 0;
+    const preset = ($('studio-preset') && $('studio-preset').value) || '';
+    const parts = [
+      'brightness(' + brightness + '%)',
+      'contrast(' + contrast + '%)',
+      'saturate(' + saturation + '%)',
+    ];
+    if (blur > 0) parts.push('blur(' + blur + 'px)');
+    if (preset) parts.push(preset);
+    return parts.join(' ');
+  }
+
+  function paintStudio(target, maxEdge) {
+    const img = studio.img;
+    if (!img) return null;
+    const angle = ((studio.rotate % 360) + 360) % 360;
+    const swap = angle === 90 || angle === 270;
+    const naturalW = img.naturalWidth || img.width;
+    const naturalH = img.naturalHeight || img.height;
+    const rotatedW = swap ? naturalH : naturalW;
+    const rotatedH = swap ? naturalW : naturalH;
+    const scale = maxEdge > 0 ? Math.min(1, maxEdge / Math.max(rotatedW, rotatedH)) : 1;
+
+    target.width = Math.max(1, Math.round(rotatedW * scale));
+    target.height = Math.max(1, Math.round(rotatedH * scale));
+
+    const ctx = target.getContext('2d');
+    ctx.save();
+    ctx.filter = studioFilter();
+    ctx.translate(target.width / 2, target.height / 2);
+    ctx.rotate((angle * Math.PI) / 180);
+    ctx.scale(studio.flipH ? -1 : 1, studio.flipV ? -1 : 1);
+    const drawW = swap ? target.height : target.width;
+    const drawH = swap ? target.width : target.height;
+    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+    ctx.restore();
+    return target;
+  }
+
+  function renderStudio() {
+    const canvas = $('studio-canvas');
+    if (!canvas || !studio.img) return;
+    paintStudio(canvas, 1400);
+    const values = {
+      'studio-brightness-value': ($('studio-brightness') ? $('studio-brightness').value : 100) + '%',
+      'studio-contrast-value': ($('studio-contrast') ? $('studio-contrast').value : 100) + '%',
+      'studio-saturation-value': ($('studio-saturation') ? $('studio-saturation').value : 100) + '%',
+      'studio-blur-value': ($('studio-blur') ? $('studio-blur').value : 0) + 'px',
+    };
+    Object.keys(values).forEach((id) => {
+      const node = $(id);
+      if (node) node.textContent = values[id];
+    });
+  }
+
+  function resetStudioAdjustments() {
+    const defaults = {
+      'studio-brightness': 100,
+      'studio-contrast': 100,
+      'studio-saturation': 100,
+      'studio-blur': 0,
+      'studio-preset': '',
+    };
+    Object.keys(defaults).forEach((id) => {
+      const node = $(id);
+      if (node) node.value = defaults[id];
+    });
+    studio.rotate = 0;
+    studio.flipH = false;
+    studio.flipV = false;
+    studio.preset = '';
+  }
+
+  async function studioLoadFile(file) {
+    if (!file) return;
+    try {
+      const shot = await compressImageFile(file, 2400, 0.9);
+      const img = await loadImageElement(shot.dataUrl);
+      studio.img = img;
+      resetStudioAdjustments();
+      const drop = $('studio-drop');
+      const stage = $('studio-stage');
+      const controls = $('studio-controls');
+      if (drop) drop.hidden = true;
+      if (stage) stage.hidden = false;
+      if (controls) controls.hidden = false;
+      renderStudio();
+    } catch (error) {
+      toast(error.message || 'Could not open that photo.', 'error');
+    }
+  }
+
+  function studioExportCanvas(maxEdge) {
+    const canvas = document.createElement('canvas');
+    return paintStudio(canvas, maxEdge);
+  }
+
+  function studioDownload() {
+    const canvas = studioExportCanvas(Number(($('studio-size') || {}).value) || 1280);
+    if (!canvas) {
+      toast('Choose a photo first.', 'error');
+      return;
+    }
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'new-ai-photo.jpg';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast('Photo downloaded.');
+      },
+      'image/jpeg',
+      0.92
+    );
+  }
+
+  function studioSendToChat() {
+    const canvas = studioExportCanvas(1280);
+    if (!canvas) {
+      toast('Choose a photo first.', 'error');
+      return;
+    }
+    runtime.attachments.push({
+      id: uid(),
+      name: 'edited-photo.jpg',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.85),
+    });
+    renderAttachStrip();
+    switchView('chat');
+    toast('Photo added to the message box. Type a question and send.');
+  }
+
+  function studioToVideo() {
+    const canvas = studioExportCanvas(1600);
+    if (!canvas) {
+      toast('Choose a photo first.', 'error');
+      return;
+    }
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    loadImageElement(dataUrl)
+      .then((img) => {
+        studio.video.push({ id: uid(), dataUrl, img });
+        renderVideoStrip();
+        switchStudioTab('video');
+        toast('Photo added to the clip.');
+      })
+      .catch(() => toast('Could not add that photo.', 'error'));
+  }
+
+  function renderVideoStrip() {
+    const strip = $('video-strip');
+    if (!strip) return;
+    strip.innerHTML = studio.video
+      .map(
+        (item, index) =>
+          '<div class="video-thumb"><img src="' +
+          escapeHtml(item.dataUrl) +
+          '" alt=""><span class="video-thumb__no">' +
+          (index + 1) +
+          '</span><button class="video-thumb__remove" type="button" data-remove-video="' +
+          item.id +
+          '" aria-label="Remove photo"><svg class="icon"><use href="#i-x"></use></svg></button></div>'
+      )
+      .join('');
+    const eta = $('video-eta');
+    if (eta) {
+      const seconds = Number(($('video-duration') || {}).value) || 2.5;
+      eta.textContent = studio.video.length
+        ? studio.video.length + ' photos · about ' + Math.round(studio.video.length * seconds) + 's clip'
+        : 'Add photos to see the clip length.';
+    }
+  }
+
+  async function videoAddFiles(files) {
+    const list = Array.from(files || []).filter((file) => /^image\//.test(file.type || ''));
+    if (!list.length) {
+      toast('Choose image files for the clip.', 'error');
+      return;
+    }
+    for (const file of list) {
+      if (studio.video.length >= 20) {
+        toast('A clip can hold up to 20 photos.');
+        break;
+      }
+      try {
+        const shot = await compressImageFile(file, 1600, 0.86);
+        const img = await loadImageElement(shot.dataUrl);
+        studio.video.push({ id: uid(), dataUrl: shot.dataUrl, img });
+      } catch (error) {
+        toast(file.name + ': ' + (error.message || 'could not read this photo.'), 'error');
+      }
+    }
+    renderVideoStrip();
+  }
+
+  function drawCoverFrame(ctx, img, width, height, zoom, offsetX, offsetY) {
+    const base = Math.max(width / img.width, height / img.height);
+    const scale = base * zoom;
+    const drawW = img.width * scale;
+    const drawH = img.height * scale;
+    ctx.drawImage(img, (width - drawW) / 2 + offsetX, (height - drawH) / 2 + offsetY, drawW, drawH);
+  }
+
+  function stopVideo() {
+    studio.cancelled = true;
+  }
+
+  // One recording pass. The canvas encoder on some machines silently emits an
+  // empty file at large sizes, so makeVideo retries at smaller sizes.
+  async function recordClip(canvas, seconds, motion, music) {
+    const fps = 30;
+    const ctx = canvas.getContext('2d');
+    const stream = canvas.captureStream(fps);
+    let audio = null;
+    let audioContext = null;
+    studio.chunks = [];
+
+    try {
+      if (music) {
+        try {
+          audio = new Audio(URL.createObjectURL(music));
+          audio.loop = true;
+          const AudioCtor = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtor) {
+            audioContext = new AudioCtor();
+            const source = audioContext.createMediaElementSource(audio);
+            const destination = audioContext.createMediaStreamDestination();
+            source.connect(destination);
+            source.connect(audioContext.destination);
+            destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+            await audio.play();
+          }
+        } catch {
+          toast('Music could not be added; the clip will be silent.', 'error');
+          audio = null;
+        }
+      }
+
+      const mime = ['video/webm', 'video/webm;codecs=vp8', 'video/mp4'].find(
+        (type) => window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported(type)
+      );
+      const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      studio.recorder = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size) studio.chunks.push(event.data);
+      };
+      const finished = new Promise((resolve) => {
+        recorder.onstop = resolve;
+      });
+      recorder.start(250);
+
+      const framesPerPhoto = Math.max(1, Math.round(seconds * fps));
+      const totalFrames = framesPerPhoto * studio.video.length;
+      let frame = 0;
+      while (frame < totalFrames && !studio.cancelled) {
+        const index = Math.min(studio.video.length - 1, Math.floor(frame / framesPerPhoto));
+        const t = (frame % framesPerPhoto) / framesPerPhoto;
+        const img = studio.video[index].img;
+        ctx.fillStyle = '#05070d';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        let zoom = 1;
+        let offsetX = 0;
+        if (motion === 'zoom') zoom = 1 + 0.08 * t;
+        else if (motion === 'out') zoom = 1.08 - 0.08 * t;
+        else if (motion === 'pan') {
+          zoom = 1.06;
+          offsetX = (t - 0.5) * canvas.width * 0.07;
+        }
+        drawCoverFrame(ctx, img, canvas.width, canvas.height, zoom, offsetX, 0);
+        frame += 1;
+        await sleep(1000 / fps);
+      }
+
+      recorder.stop();
+      await finished;
+      const type = (studio.chunks[0] && studio.chunks[0].type) || mime || 'video/webm';
+      return { blob: new Blob(studio.chunks, { type }), type };
+    } finally {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      stream.getTracks().forEach((track) => track.stop());
+      if (audioContext && audioContext.state !== 'closed') {
+        try {
+          audioContext.close();
+        } catch {
+          /* already gone */
+        }
+      }
+      studio.recorder = null;
+    }
+  }
+
+  async function makeVideo() {
+    if (studio.recording) return;
+    if (studio.video.length < 2) {
+      toast('Add at least two photos for a clip.', 'error');
+      return;
+    }
+    if (typeof MediaRecorder !== 'function') {
+      toast('This browser cannot record video. Use Chrome or Edge.', 'error');
+      return;
+    }
+
+    const canvas = $('video-canvas');
+    const result = $('video-result');
+    const makeBtn = $('video-make');
+    const stopBtn = $('video-stop');
+    const download = $('video-download');
+    const status = $('video-status');
+    if (!canvas) return;
+
+    const aspect = ($('video-aspect') || {}).value || 'portrait';
+    const base = { portrait: [720, 1280], square: [900, 900], landscape: [1280, 720] }[aspect] || [720, 1280];
+    const motion = ($('video-zoom') || {}).value || 'zoom';
+    const seconds = Number(($('video-duration') || {}).value) || 2.5;
+    const music = $('video-music') && $('video-music').files[0];
+
+    const sizes = [[base[0], base[1]]];
+    for (const scale of [0.66, 0.45]) {
+      const width = Math.max(320, Math.round(base[0] * scale / 2) * 2);
+      const height = Math.max(320, Math.round(base[1] * scale / 2) * 2);
+      if (!sizes.some((size) => size[0] === width && size[1] === height)) sizes.push([width, height]);
+    }
+
+    studio.recording = true;
+    studio.cancelled = false;
+    if (makeBtn) makeBtn.disabled = true;
+    if (stopBtn) stopBtn.hidden = false;
+    if (download) download.hidden = true;
+    if (result) {
+      result.hidden = true;
+      if (studio.resultUrl) URL.revokeObjectURL(studio.resultUrl);
+      studio.resultUrl = '';
+    }
+
+    try {
+      let output = null;
+      for (const size of sizes) {
+        if (studio.cancelled) break;
+        canvas.width = size[0];
+        canvas.height = size[1];
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#05070d';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (status) {
+          status.textContent =
+            'Rendering ' + size[0] + '×' + size[1] + ' on this device… you can cancel any time.';
+        }
+        const attempt = await recordClip(canvas, seconds, motion, music);
+        if (attempt && attempt.blob && attempt.blob.size) {
+          output = attempt;
+          break;
+        }
+      }
+
+      if (studio.cancelled) {
+        if (status) status.textContent = 'Cancelled. Nothing was saved.';
+        return;
+      }
+      if (!output) {
+        if (status) {
+          status.textContent =
+            'This browser produced an empty recording at every size. Try Chrome or Edge, or fewer photos.';
+        }
+        return;
+      }
+
+      const url = URL.createObjectURL(output.blob);
+      studio.resultUrl = url;
+      if (result) {
+        result.src = url;
+        result.hidden = false;
+        result.play().catch(() => {});
+      }
+      if (download) {
+        download.href = url;
+        download.download = /mp4/.test(output.type) ? 'new-ai-video.mp4' : 'new-ai-video.webm';
+        download.hidden = false;
+      }
+      if (status) {
+        const size =
+          output.blob.size >= 1024 * 1024
+            ? (output.blob.size / (1024 * 1024)).toFixed(1) + ' MB'
+            : Math.max(1, Math.round(output.blob.size / 1024)) + ' KB';
+        status.textContent =
+          'Done — ' + size + ' at ' + canvas.width + '×' + canvas.height + '. Preview above, or download it.';
+      }
+    } catch (error) {
+      if (status) status.textContent = 'Could not make the clip: ' + (error.message || 'unknown error');
+      toast('Could not make the video.', 'error');
+    } finally {
+      studio.recording = false;
+      studio.recorder = null;
+      if (makeBtn) makeBtn.disabled = false;
+      if (stopBtn) stopBtn.hidden = true;
+    }
+  }
+
+  function switchStudioTab(name) {
+    qsa('.studio-tab').forEach((tab) => {
+      const active = tab.dataset.studioTab === name;
+      tab.classList.toggle('is-active', active);
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    qsa('.studio-panel').forEach((panel) => {
+      panel.hidden = panel.dataset.studioPanel !== name;
+    });
+  }
+
+  function imageApiUrl() {
+    const base = String(settings.proxyUrl || '');
+    if (/\/api\/chat\/?$/.test(base)) return base.replace(/\/api\/chat\/?$/, '/api/image');
+    try {
+      const url = new URL(base);
+      return url.origin + '/api/image';
+    } catch {
+      return '/api/image';
+    }
+  }
+
+  async function refreshImageCapability() {
+    const status = $('ai-image-status');
+    if (!status) return;
+    if (runtime.imageEditing) {
+      status.textContent = 'AI image editing is enabled on your server. It costs provider credit for each picture.';
+    } else {
+      status.textContent =
+        'AI image editing is not enabled. Add GEMINI_IMAGE_MODEL in server/.env and turn on billing in Google AI Studio. Local editing is always free.';
+    }
+  }
+
+  async function aiEditRun() {
+    const prompt = String(($('ai-prompt') || {}).value || '').trim();
+    if (!prompt) {
+      toast('Write what you want the picture to look like.', 'error');
+      return;
+    }
+    const button = $('ai-run');
+    if (button) button.disabled = true;
+    const status = $('ai-image-status');
+    if (status) status.textContent = 'Asking the image model… this can take 10–40 seconds.';
+
+    try {
+      const response = await fetch(imageApiUrl(), {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ prompt, image: studio.aiSource || undefined }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        const message =
+          (data && data.error && data.error.message) || 'The image model rejected that request (HTTP ' + response.status + ').';
+        const hint = data && data.error && data.error.hint ? '\n' + data.error.hint : '';
+        throw new Error(message + hint);
+      }
+      if (!data || !data.image) throw new Error('The server returned no image.');
+
+      studio.aiResult = data.image;
+      const result = $('ai-result');
+      const stage = $('ai-result-stage');
+      if (result) result.src = data.image;
+      if (stage) stage.hidden = false;
+      const download = $('ai-download');
+      const send = $('ai-send');
+      if (download) download.hidden = false;
+      if (send) send.hidden = false;
+      if (status) status.textContent = data.text ? data.text.slice(0, 220) : 'Done. The new picture is above.';
+    } catch (error) {
+      if (status) status.textContent = error.message || 'AI image editing failed.';
+      toast('AI image editing failed.', 'error');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function aiPickFile(file) {
+    if (!file) return;
+    try {
+      const shot = await compressImageFile(file, 1600, 0.88);
+      studio.aiSource = shot.dataUrl;
+      const src = $('ai-source');
+      const stage = $('ai-stage');
+      const drop = $('ai-drop');
+      if (src) src.src = shot.dataUrl;
+      if (stage) stage.hidden = false;
+      if (drop) drop.hidden = true;
+    } catch (error) {
+      toast(error.message || 'Could not open that photo.', 'error');
+    }
+  }
+
+  function aiDownload() {
+    if (!studio.aiResult) return;
+    const link = document.createElement('a');
+    link.href = studio.aiResult;
+    link.download = 'new-ai-ai-image.png';
+    link.click();
+  }
+
+  function aiSendToChat() {
+    if (!studio.aiResult) return;
+    runtime.attachments.push({
+      id: uid(),
+      name: 'ai-image.png',
+      dataUrl: studio.aiResult,
+    });
+    renderAttachStrip();
+    switchView('chat');
+    toast('AI image added to the message box.');
+  }
+
+  function bindStudioEvents() {
+    qsa('.studio-tab').forEach((tab) => {
+      tab.addEventListener('click', () => switchStudioTab(tab.dataset.studioTab));
+    });
+
+    const studioFile = $('studio-file');
+    if ($('studio-pick')) $('studio-pick').addEventListener('click', () => studioFile && studioFile.click());
+    if (studioFile) {
+      studioFile.addEventListener('change', () => {
+        studioLoadFile(studioFile.files && studioFile.files[0]);
+        studioFile.value = '';
+      });
+    }
+
+    const drop = $('studio-drop');
+    if (drop) {
+      ['dragenter', 'dragover'].forEach((type) =>
+        drop.addEventListener(type, (event) => {
+          event.preventDefault();
+          drop.classList.add('is-over');
+        })
+      );
+      ['dragleave', 'drop'].forEach((type) =>
+        drop.addEventListener(type, (event) => {
+          event.preventDefault();
+          drop.classList.remove('is-over');
+        })
+      );
+      drop.addEventListener('drop', (event) => {
+        const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+        studioLoadFile(file);
+      });
+    }
+
+    qsa('[data-studio-act]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const act = button.dataset.studioAct;
+        if (!studio.img) return;
+        if (act === 'rot-l') studio.rotate -= 90;
+        if (act === 'rot-r') studio.rotate += 90;
+        if (act === 'flip-h') studio.flipH = !studio.flipH;
+        if (act === 'flip-v') studio.flipV = !studio.flipV;
+        renderStudio();
+      });
+    });
+
+    ['studio-brightness', 'studio-contrast', 'studio-saturation', 'studio-blur', 'studio-preset'].forEach((id) => {
+      const node = $(id);
+      if (node) node.addEventListener('input', renderStudio);
+      if (node) node.addEventListener('change', renderStudio);
+    });
+
+    if ($('studio-download')) $('studio-download').addEventListener('click', studioDownload);
+    if ($('studio-send')) $('studio-send').addEventListener('click', studioSendToChat);
+    if ($('studio-to-video')) $('studio-to-video').addEventListener('click', studioToVideo);
+    if ($('studio-reset')) {
+      $('studio-reset').addEventListener('click', () => {
+        if (!studio.img) return;
+        resetStudioAdjustments();
+        renderStudio();
+      });
+    }
+
+    const videoFiles = $('video-files');
+    if ($('video-add')) $('video-add').addEventListener('click', () => videoFiles && videoFiles.click());
+    if (videoFiles) {
+      videoFiles.addEventListener('change', () => {
+        videoAddFiles(videoFiles.files);
+        videoFiles.value = '';
+      });
+    }
+    if ($('video-make')) $('video-make').addEventListener('click', makeVideo);
+    if ($('video-stop')) {
+      $('video-stop').addEventListener('click', () => {
+        stopVideo();
+        toast('Cancelling…');
+      });
+    }
+    const duration = $('video-duration');
+    if (duration) {
+      duration.addEventListener('input', () => {
+        const label = $('video-duration-value');
+        if (label) label.textContent = duration.value + 's';
+        renderVideoStrip();
+      });
+    }
+    const strip = $('video-strip');
+    if (strip) {
+      strip.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-remove-video]');
+        if (!button) return;
+        studio.video = studio.video.filter((item) => item.id !== button.dataset.removeVideo);
+        renderVideoStrip();
+      });
+    }
+
+    // Marquee-style: clicking a small photo opens it full size.
+    document.addEventListener('click', (event) => {
+      const thumb = event.target.closest('[data-view-image]');
+      if (thumb) openImageViewer(thumb.dataset.viewImage);
+    });
+
+    const aiFile = $('ai-file');
+    if ($('ai-pick')) $('ai-pick').addEventListener('click', () => aiFile && aiFile.click());
+    if (aiFile) {
+      aiFile.addEventListener('change', () => {
+        aiPickFile(aiFile.files && aiFile.files[0]);
+        aiFile.value = '';
+      });
+    }
+    if ($('ai-run')) $('ai-run').addEventListener('click', aiEditRun);
+    if ($('ai-clear')) {
+      $('ai-clear').addEventListener('click', () => {
+        studio.aiSource = '';
+        const src = $('ai-source');
+        if (src) src.removeAttribute('src');
+        const stage = $('ai-stage');
+        if (stage) stage.hidden = true;
+        const drop = $('ai-drop');
+        if (drop) drop.hidden = false;
+      });
+    }
+    if ($('ai-download')) $('ai-download').addEventListener('click', aiDownload);
+    if ($('ai-send')) $('ai-send').addEventListener('click', aiSendToChat);
+  }
+
+  function bindAttachmentEvents() {
+    const imageInput = $('image-input');
+    const cameraInput = $('camera-input');
+    if ($('attach-btn') && imageInput) {
+      $('attach-btn').addEventListener('click', () => imageInput.click());
+    }
+    if ($('camera-btn') && cameraInput) {
+      $('camera-btn').addEventListener('click', () => cameraInput.click());
+    }
+    if (imageInput) {
+      imageInput.addEventListener('change', () => {
+        addAttachmentFiles(imageInput.files);
+        imageInput.value = '';
+      });
+    }
+    if (cameraInput) {
+      cameraInput.addEventListener('change', () => {
+        addAttachmentFiles(cameraInput.files);
+        cameraInput.value = '';
+      });
+    }
+    const strip = $('attach-strip');
+    if (strip) {
+      strip.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-remove-attach]');
+        if (!button) return;
+        runtime.attachments = runtime.attachments.filter((item) => item.id !== button.dataset.removeAttach);
+        renderAttachStrip();
+      });
+    }
+
+    // Paste a screenshot straight into the message box.
+    document.addEventListener('paste', (event) => {
+      const active = document.activeElement;
+      if (!active || active.id !== 'prompt-input') return;
+      const items = Array.from((event.clipboardData && event.clipboardData.files) || []);
+      const images = items.filter((file) => /^image\//.test(file.type || ''));
+      if (!images.length) return;
+      event.preventDefault();
+      addAttachmentFiles(images);
+    });
   }
 
   /* =====================================================================
@@ -3703,8 +4620,8 @@
         const input = $('prompt-input');
         if (!input) return;
         const value = input.value.trim();
-        if (!value) return;
-        sendMessage(value);
+        if (!value && !runtime.attachments.length) return;
+        sendMessage(value, { images: attachmentDataUrls() });
       });
     }
 
@@ -3715,10 +4632,10 @@
         if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
           event.preventDefault();
           const value = prompt.value.trim();
-          if (value && !runtime.busy) {
+          if ((value || runtime.attachments.length) && !runtime.busy) {
             prompt.value = '';
             autoResizeComposer();
-            sendMessage(value);
+            sendMessage(value, { images: attachmentDataUrls() });
           }
         }
       });
@@ -4012,6 +4929,9 @@
       saveMemories();
       saveTasks();
     });
+
+    bindAttachmentEvents();
+    bindStudioEvents();
   }
 
   /* =====================================================================
@@ -4044,6 +4964,8 @@
     updateComposerState();
     updateVoiceButtons();
     autoResizeComposer();
+    renderAttachStrip();
+    refreshImageCapability();
     bindEvents();
     startWaveform();
     switchView('chat');

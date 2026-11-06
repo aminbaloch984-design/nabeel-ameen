@@ -5,7 +5,7 @@
  * network-only: cached chat answers would be fake answers.
  */
 
-const VERSION = 'new-ai-v2';
+const VERSION = 'new-ai-v3';
 const SHELL = [
   './',
   './index.html',
