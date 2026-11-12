@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vehicle details | AutoDrive PK</title>
+  <meta name="description" content="Full vehicle dossier with specifications, inspection checklist, seller details and direct WhatsApp contact on AutoDrive PK.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="announce">
+    <div class="container announce__inner">
+      <span><strong>Demo listing</strong> — specifications and seller are sample data</span>
+      <span class="dot"></span>
+      <span>Verify documents and inspect any vehicle before payment</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+        </span>
+        <span>
+          <span class="logo__text">AutoDrive<span>PK</span></span>
+          <span class="logo__sub">Verified cars</span>
+        </span>
+      </a>
+
+      <nav class="nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="inventory.html">Buy Cars</a>
+        <a href="sell.html">Sell Your Car</a>
+        <a href="about.html">About</a>
+        <a href="about.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+923000002886">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/></svg>
+          +92 300 0002886
+        </a>
+        <a class="btn btn--sm" href="sell.html">Post an Ad</a>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="sep">/</span>
+          <a href="inventory.html">Buy cars</a>
+          <span class="sep">/</span>
+          <span id="crumb-car">Vehicle</span>
+        </nav>
+
+        <div id="car-detail" class="page-hero__row">
+          <div class="stack" style="gap: 8px;">
+            <span class="eyebrow">Verified dossier</span>
+            <h1 class="h1" id="car-title">Loading vehicle…</h1>
+            <p class="lead" id="car-variant" style="max-width: 55ch;"></p>
+            <p class="car-card__meta" id="car-meta" style="font-size: 0.82rem;"></p>
+          </div>
+          <div class="row" style="padding-bottom: 6px;">
+            <span class="badge badge--green" id="car-badge">Verified</span>
+            <span class="badge" id="car-score">9.6 / 10</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section--tight" style="padding-top: 26px;">
+      <div class="container">
+        <div class="detail-layout">
+          <!-- Left -->
+          <div class="stack" style="gap: 16px;">
+            <div class="gallery">
+              <div class="gallery__main">
+                <span class="badge badge--solid">Front 3/4 view</span>
+                <img id="gallery-main-img" src="" alt="Vehicle photo">
+              </div>
+              <div class="gallery__thumbs" id="gallery-thumbs"></div>
+              <p class="tiny muted">Photos shown are stock demo images, not the actual vehicle.</p>
+            </div>
+
+            <div class="detail-card">
+              <div class="between" style="margin-bottom: 10px;">
+                <h2 class="h3">Vehicle overview</h2>
+                <span class="badge">Demo listing</span>
+              </div>
+              <p class="muted" id="car-description" style="font-size: 0.88rem; line-height: 1.7;"></p>
+            </div>
+
+            <div class="detail-card">
+              <h2 class="h3" style="margin-bottom: 14px;">Specifications</h2>
+              <div class="spec-grid" id="car-specs"></div>
+            </div>
+
+            <div class="detail-card">
+              <h2 class="h3" style="margin-bottom: 14px;">Factory equipment &amp; features</h2>
+              <ul class="feature-list" id="car-features"></ul>
+            </div>
+
+            <div class="detail-card">
+              <div class="between" style="margin-bottom: 14px;">
+                <h2 class="h3">Inspection checklist</h2>
+                <span class="badge badge--green">210-point sample</span>
+              </div>
+              <div class="checklist">
+                <div class="checklist__row"><span>Engine compression &amp; turbo spool</span><b>Pass · 10 / 10</b></div>
+                <div class="checklist__row"><span>Paint depth (factory 95–115 microns)</span><b>Pass · original</b></div>
+                <div class="checklist__row"><span>Transmission shift quality</span><b>Pass · 9.5 / 10</b></div>
+                <div class="checklist__row"><span>Suspension, bushings &amp; underbody</span><b>Pass · 9.5 / 10</b></div>
+                <div class="checklist__row"><span>Brakes &amp; tyre tread</span><b>Pass · 10 / 10</b></div>
+                <div class="checklist__row"><span>Chassis rails &amp; structural integrity</span><b>Pass · no repairs</b></div>
+              </div>
+              <p class="tiny muted" style="margin-top: 12px;">Sample inspection sheet. A real report is issued only after a physical 210-point audit.</p>
+            </div>
+          </div>
+
+          <!-- Right -->
+          <aside class="stack" style="gap: 14px;">
+            <div class="detail-card">
+              <div class="price-box">
+                <span class="tiny upper muted">Asking price</span>
+                <span class="price-box__value" id="car-price">—</span>
+                <span class="price-box__sub" id="car-price-full"></span>
+                <span class="price-box__emi">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17h18M5 17V9l3-4h8l3 4v8"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg>
+                  From <b id="car-emi">—</b> · 30% down, 5 years
+                </span>
+              </div>
+
+              <div class="seller-box__actions" style="margin-top: 16px;">
+                <a class="btn btn--wa btn--block" data-wa href="#" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.6 2 2.2 6.4 2.2 11.84c0 1.74.46 3.44 1.32 4.94L2 22l5.36-1.4a9.9 9.9 0 0 0 4.68 1.2h.01c5.43 0 9.84-4.4 9.84-9.84A9.78 9.78 0 0 0 12.04 2Zm0 17.96a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.1.81.83-3.03-.2-.31a8.13 8.13 0 0 1-1.25-4.33c0-4.5 3.67-8.17 8.2-8.17a8.14 8.14 0 0 1 8.17 8.18c0 4.5-3.67 8.17-8.17 8.17Z"/></svg>
+                  WhatsApp seller
+                </a>
+                <a class="btn btn--ghost btn--block" data-call href="#">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/></svg>
+                  Show phone number
+                </a>
+                <a class="btn btn--ghost btn--block" href="about.html#contact">Book an inspection</a>
+              </div>
+              <p class="note" style="margin-top: 12px;">Never pay a token deposit before seeing the vehicle and documents. Use documented bank transfer only.</p>
+            </div>
+
+            <div class="detail-card">
+              <h2 class="h3" style="margin-bottom: 12px;">Seller</h2>
+              <div class="seller-box">
+                <div class="seller-box__top">
+                  <span class="seller-box__avatar" id="seller-initial">AD</span>
+                  <span>
+                    <span class="strong" id="seller-name" style="display:block;">—</span>
+                    <span class="tiny muted" id="seller-type">—</span>
+                    <span class="tiny green" id="seller-deals" style="display:block;margin-top:2px;">—</span>
+                  </span>
+                </div>
+                <div class="checklist">
+                  <div class="checklist__row"><span>Location</span><b id="car-location" style="color:var(--text);font-weight:500;">—</b></div>
+                  <div class="checklist__row"><span>Ownership</span><b id="car-owners" style="color:var(--text);font-weight:500;">—</b></div>
+                  <div class="checklist__row"><span>Condition</span><b id="car-condition" style="color:var(--text);font-weight:500;">—</b></div>
+                  <div class="checklist__row"><span>Registered in</span><b id="car-registered" style="color:var(--text);font-weight:500;">—</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-card">
+              <h2 class="h3" style="margin-bottom: 12px;">More from this hub</h2>
+              <div class="stack" id="side-list" style="gap: 8px;"></div>
+            </div>
+
+            <p class="note note--neutral">This page is a design preview. Replace the demo data in <code>assets/js/data.js</code> with real listings before launch.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow">Keep comparing</span>
+            <h2 class="h2">Similar verified cars</h2>
+          </div>
+          <a class="link-arrow" href="inventory.html">Back to inventory</a>
+        </div>
+        <div class="grid-cars" id="similar-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+          <span class="logo__mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+          </span>
+          <span>
+            <span class="logo__text">AutoDrive<span>PK</span></span>
+            <span class="logo__sub">Verified cars</span>
+          </span>
+        </a>
+        <p>Pakistan's premier digital showroom for verified sedans, SUVs and daily drivers. Transparent PKR pricing across Karachi, Lahore and Islamabad.</p>
+        <form class="newsletter" data-demo-form="Subscribed! Price alerts are demo-only for now.">
+          <input class="input" type="email" placeholder="Email for price alerts" aria-label="Email for price alerts" required>
+          <button class="btn btn--sm" type="submit">Subscribe</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="inventory.html">Buy cars</a>
+        <a href="sell.html">Sell your car</a>
+        <a href="about.html">About us</a>
+        <a href="about.html#contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular brands</h4>
+        <a href="inventory.html?make=Toyota">Toyota</a>
+        <a href="inventory.html?make=Honda">Honda</a>
+        <a href="inventory.html?make=Suzuki">Suzuki</a>
+        <a href="inventory.html?make=Kia">Kia</a>
+        <a href="inventory.html?make=Hyundai">Hyundai</a>
+      </div>
+      <div class="footer-col">
+        <h4>Major hubs</h4>
+        <li>Karachi — Clifton &amp; DHA</li>
+        <li>Lahore — Gulberg &amp; DHA</li>
+        <li>Islamabad — Blue Area</li>
+        <li>Rawalpindi — Saddar</li>
+        <li><a href="tel:+923000002886">+92 300 0002886</a></li>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2025 AutoDrive PK — demo project. Listings and reviews are sample content.</span>
+      <div class="footer-bottom__links">
+        <a href="about.html#safety">Safety tips</a>
+        <a href="about.html#contact">Support</a>
+        <a href="about.html#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

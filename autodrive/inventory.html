@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Used &amp; new cars for sale in Pakistan | AutoDrive PK</title>
+  <meta name="description" content="Filter demo inventory by make, city, budget, year, mileage, fuel and transmission. Every listing shows clear PKR pricing and a direct WhatsApp action.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="announce">
+    <div class="container announce__inner">
+      <span><strong>Demo inventory</strong> — sample cars used for layout preview</span>
+      <span class="dot"></span>
+      <span>Filters, sorting and search all work on the sample dataset</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+        </span>
+        <span>
+          <span class="logo__text">AutoDrive<span>PK</span></span>
+          <span class="logo__sub">Verified cars</span>
+        </span>
+      </a>
+
+      <nav class="nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="inventory.html" aria-current="page">Buy Cars</a>
+        <a href="sell.html">Sell Your Car</a>
+        <a href="about.html">About</a>
+        <a href="about.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+923000002886">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/></svg>
+          +92 300 0002886
+        </a>
+        <a class="btn btn--sm" href="sell.html">Post an Ad</a>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="sep">/</span>
+          <span>Buy cars</span>
+        </nav>
+        <div class="page-hero__row">
+          <div class="stack">
+            <span class="eyebrow">Nationwide inventory</span>
+            <h1 class="h1">Browse used &amp; new cars for sale</h1>
+            <p class="lead">Filter by make, city, budget and condition. Prices are shown in both full PKR and the Lacs / Crore format used across Pakistan.</p>
+          </div>
+          <p class="page-hero__count">Demo dataset · <b>12</b> sample listings</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section--tight" style="padding-top: 26px;">
+      <div class="container">
+        <div class="inventory-layout">
+          <!-- Filters -->
+          <aside class="filters" id="filters-panel" aria-label="Filter cars">
+            <div class="filters__head">
+              <span class="h4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+                Filters
+              </span>
+              <button class="btn btn--ghost btn--sm" type="button" id="reset-filters">Reset</button>
+            </div>
+
+            <div class="filters__group">
+              <div class="field">
+                <label for="filter-search">Search keyword</label>
+                <input class="input" id="filter-search" type="search" placeholder="Civic, Prado, hybrid…" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="filter-make">Make</label>
+                <select class="select" id="filter-make"><option value="">All makes</option></select>
+              </div>
+              <div class="field">
+                <label for="filter-city">City</label>
+                <select class="select" id="filter-city"><option value="">All cities</option></select>
+              </div>
+            </div>
+
+            <div class="filters__group">
+              <span class="filters__group-title">Budget (PKR)</span>
+              <div class="range-row">
+                <div class="field">
+                  <label for="filter-price-min">From</label>
+                  <select class="select" id="filter-price-min"></select>
+                </div>
+                <div class="field">
+                  <label for="filter-price-max">To</label>
+                  <select class="select" id="filter-price-max"><option value="">Any</option></select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="filter-year-min">Model year</label>
+                <select class="select" id="filter-year-min"><option value="">Any year</option></select>
+              </div>
+              <div class="field">
+                <label for="filter-mileage-max">Mileage</label>
+                <select class="select" id="filter-mileage-max"><option value="">Any mileage</option></select>
+              </div>
+            </div>
+
+            <div class="filters__group">
+              <span class="filters__group-title">Vehicle</span>
+              <div class="field">
+                <label for="filter-body">Body type</label>
+                <select class="select" id="filter-body"><option value="">All body types</option></select>
+              </div>
+              <div class="field">
+                <label for="filter-fuel">Fuel</label>
+                <select class="select" id="filter-fuel"><option value="">All fuels</option></select>
+              </div>
+              <div class="field">
+                <label for="filter-trans">Transmission</label>
+                <select class="select" id="filter-trans"><option value="">All transmissions</option></select>
+              </div>
+            </div>
+
+            <p class="tiny muted">Filters update the results instantly and can be shared as a link.</p>
+          </aside>
+
+          <!-- Results -->
+          <div>
+            <div class="results-bar">
+              <p class="results-bar__count" id="results-count" aria-live="polite">Loading inventory…</p>
+              <div class="results-bar__tools">
+                <button class="btn btn--ghost btn--sm filter-toggle" type="button" id="filter-toggle" aria-expanded="false" aria-controls="filters-panel">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+                  Filters
+                </button>
+                <label class="tiny muted" for="sort-select" style="margin-left: 4px;">Sort</label>
+                <select class="select" id="sort-select">
+                  <option value="newest">Newest first</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                  <option value="mileage-asc">Lowest mileage</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="active-chips" id="active-chips"></div>
+            <div class="grid-cars" id="car-grid"></div>
+            <div class="load-more">
+              <button class="btn btn--ghost" type="button" id="load-more" hidden>Load more</button>
+            </div>
+
+            <p class="tiny muted" style="margin-top: 22px; text-align: center;">
+              Sample data only — replace <code>assets/js/data.js</code> with your real inventory. No listing is a confirmed offer.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="border-top: 1px solid var(--line);">
+      <div class="container">
+        <div class="stat-strip">
+          <div><strong>210-point</strong><span>Optional inspection add-on</span></div>
+          <div><strong>0%</strong><span>Commission on private ads</span></div>
+          <div><strong>48–72 hrs</strong><span>Average demo closure time</span></div>
+          <div><strong>7 cities</strong><span>Karachi to Peshawar</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+          <span class="logo__mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+          </span>
+          <span>
+            <span class="logo__text">AutoDrive<span>PK</span></span>
+            <span class="logo__sub">Verified cars</span>
+          </span>
+        </a>
+        <p>Pakistan's premier digital showroom for verified sedans, SUVs and daily drivers. Transparent PKR pricing across Karachi, Lahore and Islamabad.</p>
+        <form class="newsletter" data-demo-form="Subscribed! Price alerts are demo-only for now.">
+          <input class="input" type="email" placeholder="Email for price alerts" aria-label="Email for price alerts" required>
+          <button class="btn btn--sm" type="submit">Subscribe</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell your car</a>
+        <a href="about.html">About us</a>
+        <a href="about.html#contact">Contact</a>
+        <a href="inventory.html?fuel=Hybrid">Hybrid cars</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular brands</h4>
+        <a href="inventory.html?make=Toyota">Toyota</a>
+        <a href="inventory.html?make=Honda">Honda</a>
+        <a href="inventory.html?make=Suzuki">Suzuki</a>
+        <a href="inventory.html?make=Kia">Kia</a>
+        <a href="inventory.html?make=Hyundai">Hyundai</a>
+      </div>
+      <div class="footer-col">
+        <h4>Major hubs</h4>
+        <li>Karachi — Clifton &amp; DHA</li>
+        <li>Lahore — Gulberg &amp; DHA</li>
+        <li>Islamabad — Blue Area</li>
+        <li>Rawalpindi — Saddar</li>
+        <li><a href="tel:+923000002886">+92 300 0002886</a></li>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2025 AutoDrive PK — demo project. Listings and reviews are sample content.</span>
+      <div class="footer-bottom__links">
+        <a href="about.html#safety">Safety tips</a>
+        <a href="about.html#contact">Support</a>
+        <a href="about.html#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

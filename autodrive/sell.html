@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sell your car in Pakistan | AutoDrive PK</title>
+  <meta name="description" content="Create a free car listing in five guided steps. Add photos, specifications, features and your PKR asking price with instant Lacs and Crore conversion.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="announce">
+    <div class="container announce__inner">
+      <span><strong>Free demo listing</strong> — submissions are not published without a backend</span>
+      <span class="dot"></span>
+      <span>Zero commission on private ads</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+        </span>
+        <span>
+          <span class="logo__text">AutoDrive<span>PK</span></span>
+          <span class="logo__sub">Verified cars</span>
+        </span>
+      </a>
+
+      <nav class="nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="inventory.html">Buy Cars</a>
+        <a href="sell.html" aria-current="page">Sell Your Car</a>
+        <a href="about.html">About</a>
+        <a href="about.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+923000002886">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/></svg>
+          +92 300 0002886
+        </a>
+        <a class="btn btn--sm" href="inventory.html">Browse cars</a>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="sep">/</span>
+          <span>Sell your car</span>
+        </nav>
+        <div class="page-hero__row">
+          <div class="stack">
+            <span class="eyebrow">Post a free ad</span>
+            <h1 class="h1">Sell your car at the best price</h1>
+            <p class="lead">Five short steps, one clean listing. Add real photos and honest details so verified buyers can shortlist your car with confidence.</p>
+          </div>
+          <p class="page-hero__count">Takes about <b>2 minutes</b></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section--tight" style="padding-top: 26px;">
+      <div class="container">
+        <div class="sell-layout">
+          <div class="form-card">
+            <div class="stepper" aria-label="Listing steps">
+              <span class="step-pill is-active"><b>1</b><span>Basics</span></span>
+              <span class="step-pill"><b>2</b><span>Condition</span></span>
+              <span class="step-pill"><b>3</b><span>Price</span></span>
+              <span class="step-pill"><b>4</b><span>Photos</span></span>
+              <span class="step-pill"><b>5</b><span>Review</span></span>
+            </div>
+
+            <form id="sell-form" novalidate>
+              <!-- Step 1 -->
+              <div class="form-step is-active">
+                <div class="step-heading">
+                  <h2 class="h3"><span>01</span> Vehicle basics</h2>
+                  <p class="small muted">Start with the exact make, model and year so buyers can find the listing.</p>
+                </div>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="sell-make">Make / manufacturer</label>
+                    <select class="select" id="sell-make" data-required>
+                      <option value="">Select make</option>
+                      <option>Toyota</option><option>Honda</option><option>Suzuki</option><option>Kia</option>
+                      <option>Hyundai</option><option>Haval</option><option>MG</option><option>Changan</option>
+                      <option>Mercedes-Benz</option><option>BMW</option><option>Audi</option><option>Other</option>
+                    </select>
+                    <span class="error-msg">Please choose a make.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-model">Model</label>
+                    <input class="input" id="sell-model" type="text" placeholder="e.g. Civic RS Turbo" data-required>
+                    <span class="error-msg">Please enter the model.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-year">Model year</label>
+                    <select class="select" id="sell-year" data-required>
+                      <option value="">Select year</option>
+                      <option>2025</option><option>2024</option><option>2023</option><option>2022</option>
+                      <option>2021</option><option>2020</option><option>2019</option><option>2018</option>
+                      <option>2017</option><option>2016</option><option>2015</option><option>2014 or older</option>
+                    </select>
+                    <span class="error-msg">Please select a year.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-variant">Variant / trim <span class="tiny muted">(optional)</span></label>
+                    <input class="input" id="sell-variant" type="text" placeholder="e.g. 1.5 VTEC Turbo">
+                  </div>
+                  <div class="field">
+                    <label for="sell-body">Body type</label>
+                    <select class="select" id="sell-body" data-required>
+                      <option value="">Select body type</option>
+                      <option>Sedan</option><option>SUV</option><option>Hatchback</option>
+                      <option>Crossover</option><option>Pickup</option><option>Van</option>
+                    </select>
+                    <span class="error-msg">Please choose a body type.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-city">City</label>
+                    <select class="select" id="sell-city" data-required>
+                      <option value="">Select city</option>
+                      <option>Karachi</option><option>Lahore</option><option>Islamabad</option>
+                      <option>Rawalpindi</option><option>Faisalabad</option><option>Peshawar</option><option>Multan</option>
+                    </select>
+                    <span class="error-msg">Please select a city.</span>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <span class="tiny muted">Step 1 of 5</span>
+                  <div class="form-actions__right">
+                    <button class="btn" type="button" data-next>Continue</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="form-step">
+                <div class="step-heading">
+                  <h2 class="h3"><span>02</span> Condition &amp; mechanics</h2>
+                  <p class="small muted">Honest mileage and condition notes reduce back-and-forth and build trust.</p>
+                </div>
+                <div class="form-grid form-grid--3">
+                  <div class="field">
+                    <label for="sell-mileage">Mileage (km)</label>
+                    <input class="input" id="sell-mileage" type="number" min="0" step="100" placeholder="e.g. 18500" data-required>
+                    <span class="error-msg">Please enter the mileage.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-fuel">Fuel</label>
+                    <select class="select" id="sell-fuel" data-required>
+                      <option value="">Select fuel</option>
+                      <option>Petrol</option><option>Diesel</option><option>Hybrid</option>
+                      <option>Electric</option><option>CNG</option><option>LPG</option>
+                    </select>
+                    <span class="error-msg">Please choose a fuel type.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-trans">Transmission</label>
+                    <select class="select" id="sell-trans" data-required>
+                      <option value="">Select transmission</option>
+                      <option>Automatic</option><option>Manual</option><option>CVT</option><option>DCT</option>
+                    </select>
+                    <span class="error-msg">Please choose a transmission.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-engine">Engine (cc)</label>
+                    <input class="input" id="sell-engine" type="number" min="600" step="50" placeholder="e.g. 1500">
+                  </div>
+                  <div class="field">
+                    <label for="sell-color">Exterior colour</label>
+                    <input class="input" id="sell-color" type="text" placeholder="e.g. Crystal Black">
+                  </div>
+                  <div class="field">
+                    <label for="sell-registration">Registered city</label>
+                    <select class="select" id="sell-registration">
+                      <option value="">Select registration</option>
+                      <option>Karachi</option><option>Lahore</option><option>Islamabad</option>
+                      <option>Rawalpindi</option><option>Faisalabad</option><option>Peshawar</option><option>Multan</option>
+                    </select>
+                  </div>
+                  <div class="field span-2">
+                    <label for="sell-desc">Condition notes <span class="tiny muted">(optional)</span></label>
+                    <textarea class="textarea" id="sell-desc" placeholder="Paint condition, service history, tyre life, any accident history…"></textarea>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <span class="tiny muted">Step 2 of 5</span>
+                  <div class="form-actions__right">
+                    <button class="btn btn--ghost" type="button" data-prev>Back</button>
+                    <button class="btn" type="button" data-next>Continue</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="form-step">
+                <div class="step-heading">
+                  <h2 class="h3"><span>03</span> Features &amp; asking price</h2>
+                  <p class="small muted">Select everything the car actually has, then set your expected price in PKR.</p>
+                </div>
+
+                <div class="stack" style="gap: 10px;">
+                  <span class="filters__group-title">Factory features</span>
+                  <div class="feature-picks">
+                    <button class="feature-pick" type="button" aria-pressed="false">Sunroof</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Leather seats</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">360° camera</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Adaptive cruise</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Apple CarPlay</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Alloy rims</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Push start</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Climate control</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">6 airbags</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Lane assist</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Heated seats</button>
+                    <button class="feature-pick" type="button" aria-pressed="false">Power tailgate</button>
+                  </div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="sell-price">Asking price (PKR)</label>
+                    <input class="input" id="sell-price" type="number" min="100000" step="10000" placeholder="e.g. 8950000" data-required>
+                    <span class="error-msg">Please enter your asking price.</span>
+                    <span class="hint" id="price-preview">Enter an amount to preview Lacs / Crore</span>
+                  </div>
+                  <div class="field">
+                    <label>Price position</label>
+                    <div class="range-row" style="grid-template-columns: 1fr;">
+                      <label class="checkbox"><input type="checkbox" id="sell-negotiable" checked> Price is slightly negotiable</label>
+                      <label class="checkbox"><input type="checkbox" id="sell-urgent"> I want a fast sale</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <span class="tiny muted">Step 3 of 5</span>
+                  <div class="form-actions__right">
+                    <button class="btn btn--ghost" type="button" data-prev>Back</button>
+                    <button class="btn" type="button" data-next>Continue</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="form-step">
+                <div class="step-heading">
+                  <h2 class="h3"><span>04</span> Photo gallery</h2>
+                  <p class="small muted">Listings with 6–12 clear angles get significantly more genuine inquiries.</p>
+                </div>
+
+                <label class="upload" id="upload-box" for="sell-photos">
+                  <span class="upload__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.4"/></svg>
+                  </span>
+                  <strong>Drag &amp; drop photos, or click to browse</strong>
+                  <span>JPG, PNG or WEBP · up to 15 MB each · max 12 photos</span>
+                  <input id="sell-photos" type="file" accept="image/*" multiple>
+                </label>
+
+                <div class="between" style="margin-top: 2px;">
+                  <span class="tiny muted">Recommended: front 3/4, rear, cockpit, speedometer, engine bay.</span>
+                  <span class="tiny" id="photo-count">0 / 12 photos</span>
+                </div>
+                <div class="previews" id="photo-previews"></div>
+
+                <p class="note note--neutral">Photos preview locally in your browser only. A real upload needs a storage backend.</p>
+
+                <div class="form-actions">
+                  <span class="tiny muted">Step 4 of 5</span>
+                  <div class="form-actions__right">
+                    <button class="btn btn--ghost" type="button" data-prev>Back</button>
+                    <button class="btn" type="button" data-next>Continue</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 5 -->
+              <div class="form-step">
+                <div class="step-heading">
+                  <h2 class="h3"><span>05</span> Review &amp; contact details</h2>
+                  <p class="small muted">Check the summary, then add your name and WhatsApp number for buyer inquiries.</p>
+                </div>
+
+                <div class="review-box" id="review-rows"></div>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="sell-name">Full name</label>
+                    <input class="input" id="sell-name" type="text" placeholder="e.g. Hamza Farooq" autocomplete="name" data-required>
+                    <span class="error-msg">Please enter your name.</span>
+                  </div>
+                  <div class="field">
+                    <label for="sell-phone">WhatsApp number</label>
+                    <input class="input" id="sell-phone" type="tel" placeholder="+92 3XX XXXXXXX" autocomplete="tel" data-required>
+                    <span class="error-msg">Please enter a valid Pakistani mobile number.</span>
+                  </div>
+                </div>
+
+                <label class="checkbox" style="margin-top: -6px;">
+                  <input type="checkbox" id="sell-terms" data-required>
+                  <span>I confirm the details are accurate and I own this vehicle, or I am authorised to sell it.</span>
+                </label>
+
+                <div class="note note--neutral">
+                  Demo only: submitting saves a draft in this browser's local storage. Publishing live listings requires a backend and database.
+                </div>
+
+                <div class="form-actions">
+                  <span class="tiny muted">Step 5 of 5</span>
+                  <div class="form-actions__right">
+                    <button class="btn btn--ghost" type="button" data-prev>Back</button>
+                    <button class="btn" type="submit">Submit listing</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div class="success-panel" id="sell-success" role="status">
+              <span class="success-panel__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </span>
+              <h2 class="h2">Listing draft saved</h2>
+              <p class="lead" style="max-width: 46ch;">Your details were stored in this browser as a draft. Connect a backend to publish it to the live inventory.</p>
+              <div class="row" style="justify-content: center; margin-top: 4px;">
+                <a class="btn" href="inventory.html">Browse inventory</a>
+                <a class="btn btn--ghost" href="index.html">Back to home</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aside -->
+          <aside class="stack" style="gap: 14px;">
+            <div class="aside-card">
+              <span class="eyebrow eyebrow--green">Why sell here</span>
+              <h2 class="h3" style="margin: 10px 0 14px;">Built for a faster, safer sale</h2>
+              <ul class="tick-list">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Free private ads with no commission</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Buyer inquiries land directly on WhatsApp</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Optional 210-point inspection add-on</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Documented transfer support in 7 cities</li>
+              </ul>
+            </div>
+
+            <div class="aside-card">
+              <h2 class="h4" style="margin-bottom: 10px;">4 tips for selling faster</h2>
+              <div class="timeline">
+                <div class="timeline__item"><b>Shoot in soft light</b><span>Early morning or twilight after a wash. Include a clean engine bay.</span></div>
+                <div class="timeline__item"><b>Price to the market</b><span>Compare recent DHA and Bahria deals. Within 3% of market closes in days.</span></div>
+                <div class="timeline__item"><b>Show the token tax status</b><span>Unpaid tokens delay transfer and scare off financed buyers.</span></div>
+                <div class="timeline__item"><b>Keep the smart card ready</b><span>A duplicate-free excise card speeds up biometric transfer.</span></div>
+              </div>
+            </div>
+
+            <div class="aside-card">
+              <div class="row" style="gap: 10px;">
+                <span class="feature-card__icon" style="margin: 0;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.8 7.8-7 9-4.2-1.2-7-4.8-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+                </span>
+                <div>
+                  <b class="strong" style="display:block;font-size:.88rem;">Prefer a managed sale?</b>
+                  <span class="tiny muted">Our team handles photos, pricing and buyer screening.</span>
+                </div>
+              </div>
+              <a class="btn btn--wa btn--block" style="margin-top: 14px;" href="https://wa.me/923000002886?text=Assalam%20o%20Alaikum%2C%20I%20want%20help%20selling%20my%20car." target="_blank" rel="noopener">
+                WhatsApp the sales desk
+              </a>
+            </div>
+
+            <p class="note">Never share OTP codes, original documents or vehicle possession before payment is confirmed in your bank account.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+          <span class="logo__mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+          </span>
+          <span>
+            <span class="logo__text">AutoDrive<span>PK</span></span>
+            <span class="logo__sub">Verified cars</span>
+          </span>
+        </a>
+        <p>Pakistan's premier digital showroom for verified sedans, SUVs and daily drivers. Transparent PKR pricing across Karachi, Lahore and Islamabad.</p>
+        <form class="newsletter" data-demo-form="Subscribed! Price alerts are demo-only for now.">
+          <input class="input" type="email" placeholder="Email for price alerts" aria-label="Email for price alerts" required>
+          <button class="btn btn--sm" type="submit">Subscribe</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="inventory.html">Buy cars</a>
+        <a href="about.html">About us</a>
+        <a href="about.html#contact">Contact</a>
+        <a href="inventory.html?sort=price-asc">Cars under 50 Lacs</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular brands</h4>
+        <a href="inventory.html?make=Toyota">Toyota</a>
+        <a href="inventory.html?make=Honda">Honda</a>
+        <a href="inventory.html?make=Suzuki">Suzuki</a>
+        <a href="inventory.html?make=Kia">Kia</a>
+        <a href="inventory.html?make=Hyundai">Hyundai</a>
+      </div>
+      <div class="footer-col">
+        <h4>Major hubs</h4>
+        <li>Karachi — Clifton &amp; DHA</li>
+        <li>Lahore — Gulberg &amp; DHA</li>
+        <li>Islamabad — Blue Area</li>
+        <li>Rawalpindi — Saddar</li>
+        <li><a href="tel:+923000002886">+92 300 0002886</a></li>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2025 AutoDrive PK — demo project. Listings and reviews are sample content.</span>
+      <div class="footer-bottom__links">
+        <a href="about.html#safety">Safety tips</a>
+        <a href="about.html#contact">Support</a>
+        <a href="about.html#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

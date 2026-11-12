@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoDrive PK — Find your dream car in Pakistan</title>
+  <meta name="description" content="Browse inspected used and new cars for sale across Karachi, Lahore and Islamabad. Verified listings, clear PKR pricing and direct WhatsApp contact with sellers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="announce">
+    <div class="container announce__inner">
+      <span><strong>Demo marketplace</strong> — all listings are sample data</span>
+      <span class="dot"></span>
+      <span>Escrow-ready transfers across Karachi, Lahore &amp; Islamabad</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+        </span>
+        <span>
+          <span class="logo__text">AutoDrive<span>PK</span></span>
+          <span class="logo__sub">Verified cars</span>
+        </span>
+      </a>
+
+      <nav class="nav" id="site-nav" aria-label="Main navigation">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="inventory.html">Buy Cars</a>
+        <a href="sell.html">Sell Your Car</a>
+        <a href="about.html">About</a>
+        <a href="about.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+923000002886">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/></svg>
+          +92 300 0002886
+        </a>
+        <a class="btn btn--sm" href="sell.html">Post an Ad</a>
+        <button class="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero__grid">
+          <div class="hero__copy reveal">
+            <span class="eyebrow">Pakistan's verified auto marketplace</span>
+            <h1 class="h1 hero__title">Find your <em>dream car</em> in Pakistan</h1>
+            <p class="lead">Browse inspected used and new cars from Karachi to Islamabad. Transparent PKR pricing, documented history and direct WhatsApp contact with genuine sellers — no broker runaround.</p>
+            <div class="hero__actions">
+              <a class="btn btn--lg" href="inventory.html">Browse cars</a>
+              <a class="btn btn--ghost btn--lg" href="sell.html">Sell your car</a>
+            </div>
+            <div class="hero__meta">
+              <div class="hero__stat"><strong>1,420</strong><span>Live demo listings</span></div>
+              <div class="hero__stat"><strong>210-point</strong><span>Inspection checklist</span></div>
+              <div class="hero__stat"><strong>4.9 / 5</strong><span>Sample buyer rating</span></div>
+            </div>
+          </div>
+
+          <div class="hero__media reveal">
+            <div class="hero__photo">
+              <span class="hero__badge"><i></i> Inspected vehicle</span>
+              <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=75" alt="Featured performance car available on AutoDrive PK" fetchpriority="high">
+              <div class="hero__price-card">
+                <div>
+                  <div class="name">2023 Honda Civic RS Turbo</div>
+                  <div class="meta">Karachi · DHA Phase 6 · 18,500 km</div>
+                </div>
+                <div class="price">PKR 89.5 Lacs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search -->
+    <div class="container">
+      <form class="search-panel" id="home-search" aria-label="Car search">
+        <div class="search-panel__form">
+          <div class="field">
+            <label for="hs-keyword">Keyword</label>
+            <input class="input" id="hs-keyword" type="search" placeholder="Civic, Prado, Sportage…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="hs-make">Make</label>
+            <select class="select" id="hs-make"><option value="">All makes</option></select>
+          </div>
+          <div class="field">
+            <label for="hs-city">City</label>
+            <select class="select" id="hs-city"><option value="">All cities</option></select>
+          </div>
+          <div class="field">
+            <label for="hs-price">Budget</label>
+            <select class="select" id="hs-price">
+              <option value="">Any budget</option>
+              <option value="2000000">Under 20 Lacs</option>
+              <option value="3000000">Under 30 Lacs</option>
+              <option value="5000000">Under 50 Lacs</option>
+              <option value="8000000">Under 80 Lacs</option>
+              <option value="12000000">Under 1.2 Crore</option>
+              <option value="20000000">Under 2 Crore</option>
+              <option value="50000000">Under 5 Crore</option>
+            </select>
+          </div>
+          <button class="btn" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            Search cars
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats -->
+    <section class="section--tight">
+      <div class="container">
+        <div class="stat-strip">
+          <div><strong>45,000+</strong><span>Sample vehicles indexed</span></div>
+          <div><strong>38</strong><span>Brands represented</span></div>
+          <div><strong>7</strong><span>Cities covered</span></div>
+          <div><strong>48–72 hrs</strong><span>Average demo sale time</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brands -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow">Shop by brand</span>
+            <h2 class="h2">Popular brands in Pakistan</h2>
+            <p class="lead">Jump straight into the marque you trust. Counts shown here are demo figures until live inventory is connected.</p>
+          </div>
+          <a class="link-arrow" href="inventory.html">Browse all inventory
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+        <div class="brand-grid" id="brand-grid"></div>
+      </div>
+    </section>
+
+    <!-- Featured inventory -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow eyebrow--green">Handpicked &amp; inspected</span>
+            <h2 class="h2">Featured certified inventory</h2>
+            <p class="lead">A short preview of the demo inventory. Every card opens a full vehicle dossier with specifications, seller details and a WhatsApp action.</p>
+          </div>
+          <a class="link-arrow" href="inventory.html">View all cars
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+        <div class="grid-cars" id="featured-grid"></div>
+      </div>
+    </section>
+
+    <!-- Sell banner -->
+    <section class="section--tight">
+      <div class="container">
+        <div class="banner reveal">
+          <div class="stack">
+            <span class="eyebrow">Sell in three steps</span>
+            <h2 class="h2">Sell your car at the best price</h2>
+            <p class="lead">Post a free ad in about two minutes, get matched with verified buyers, and close the deal through documented transfer channels.</p>
+            <div class="row" style="margin-top: 6px;">
+              <a class="btn" href="sell.html">Post your free ad</a>
+              <a class="btn btn--ghost" href="about.html#how-it-works">See how it works</a>
+            </div>
+          </div>
+          <div class="banner__steps">
+            <div class="banner__step"><b>1</b> Upload 6–12 clear photos and basic details</div>
+            <div class="banner__step"><b>2</b> Set your demand in PKR with live Lacs / Crore conversion</div>
+            <div class="banner__step"><b>3</b> Receive genuine buyer inquiries on WhatsApp</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Finance calculator -->
+    <section class="section" id="finance">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow">Plan your budget</span>
+            <h2 class="h2">Car loan &amp; installment calculator</h2>
+            <p class="lead">Estimate a monthly installment in Pakistani Rupees. Figures are indicative only — final approval and rates depend on the bank.</p>
+          </div>
+        </div>
+
+        <div class="calc reveal">
+          <div class="calc__fields">
+            <div class="field span-2">
+              <label for="calc-price">Vehicle price <span class="range-value" id="calc-price-out">PKR 1 Crore</span></label>
+              <input type="range" id="calc-price" min="2000000" max="50000000" step="500000" value="10000000">
+            </div>
+            <div class="field">
+              <label for="calc-down">Down payment <span class="range-value" id="calc-down-out">30%</span></label>
+              <input type="range" id="calc-down" min="10" max="60" step="5" value="30">
+            </div>
+            <div class="field">
+              <label for="calc-years">Tenure <span class="range-value" id="calc-years-out">5 years</span></label>
+              <select class="select" id="calc-years">
+                <option value="3">3 years</option>
+                <option value="5" selected>5 years</option>
+                <option value="7">7 years</option>
+              </select>
+            </div>
+            <div class="field span-2">
+              <label for="calc-rate">Indicative annual markup <span class="range-value" id="calc-rate-out">18%</span></label>
+              <input type="range" id="calc-rate" min="10" max="30" step="0.5" value="18">
+            </div>
+          </div>
+          <div class="calc__out">
+            <span class="tiny upper" style="color: var(--muted);">Estimated monthly installment</span>
+            <div class="calc__monthly" id="calc-monthly">PKR 161,200 / month</div>
+            <span class="tiny muted">Inclusive of principal + markup, excluding insurance.</span>
+            <div class="calc__rows">
+              <div><span>Financed amount</span><b id="calc-financed">PKR 70 Lacs</b></div>
+              <div><span>Upfront down payment</span><b id="calc-upfront">PKR 30 Lacs</b></div>
+              <div><span>Processing estimate</span><b>PKR 45,000</b></div>
+            </div>
+            <a class="btn btn--block" href="about.html#contact" style="margin-top: 16px;">Talk to a finance desk</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow eyebrow--green">Built on verification</span>
+            <h2 class="h2">Why buyers and sellers choose AutoDrive PK</h2>
+          </div>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <span class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.8 7.8-7 9-4.2-1.2-7-4.8-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <h3 class="h4">210-point inspection</h3>
+            <p>Paint depth readings, engine compression, suspension and chassis checks — documented in a shareable report.</p>
+          </article>
+          <article class="feature-card reveal">
+            <span class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <h3 class="h4">Documented transfers</h3>
+            <p>Registration, token tax and smart card checks across Punjab, Sindh and Islamabad Excise records.</p>
+          </article>
+          <article class="feature-card reveal">
+            <span class="feature-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.9L3 21l1.9-4.9A8.4 8.4 0 1 1 21 11.5Z"/></svg></span>
+            <h3 class="h4">Direct WhatsApp contact</h3>
+            <p>Message the seller without sharing your number publicly. No call centres, no hidden dealer commission.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <span class="eyebrow">Buyer experiences</span>
+            <h2 class="h2">Real stories from the demo marketplace</h2>
+            <p class="lead">Sample testimonials used for design preview only. They will be replaced with verified reviews once the marketplace goes live.</p>
+          </div>
+        </div>
+        <div class="quote-grid">
+          <article class="quote reveal">
+            <span class="quote__stars" aria-label="5 out of 5">★★★★★</span>
+            <p>“Sold my Civic RS within 48 hours without lowball spam. The WhatsApp button brought serious cash buyers only, and the inspector came to my office in Clifton.”</p>
+            <div class="quote__by">
+              <span class="quote__avatar">SZ</span>
+              <span><span class="quote__name">Shahmeer Zubair</span><span class="quote__meta">Karachi · Sample review</span></span>
+            </div>
+          </article>
+          <article class="quote reveal">
+            <span class="quote__stars" aria-label="5 out of 5">★★★★★</span>
+            <p>“The auction sheet verification saved me from an odometer-reversed import. Clear paint readings and a proper checklist before I paid a single rupee.”</p>
+            <div class="quote__by">
+              <span class="quote__avatar">FK</span>
+              <span><span class="quote__name">Faisal Khan</span><span class="quote__meta">Lahore · Sample review</span></span>
+            </div>
+          </article>
+          <article class="quote reveal">
+            <span class="quote__stars" aria-label="5 out of 5">★★★★★</span>
+            <p>“Bought a 2021 Prado from Lahore while sitting in Islamabad. Escrow, biometric verification and a full inspection report landed in one thread.”</p>
+            <div class="quote__by">
+              <span class="quote__avatar">MA</span>
+              <span><span class="quote__name">Malik Arshad</span><span class="quote__meta">Islamabad · Sample review</span></span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closing CTA -->
+    <section class="section--tight" style="padding-bottom: 64px;">
+      <div class="container">
+        <div class="banner" style="grid-template-columns: 1fr auto; align-items: center;">
+          <div class="stack">
+            <span class="eyebrow">Ready when you are</span>
+            <h2 class="h2">Your next car is one search away</h2>
+          </div>
+          <div class="row">
+            <a class="btn btn--lg" href="inventory.html">Browse cars</a>
+            <a class="btn btn--ghost btn--lg" href="sell.html">Sell your car</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="logo" href="index.html" aria-label="AutoDrive PK home">
+          <span class="logo__mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17V11l2-5h12l2 5v6"/><path d="M3 17h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>
+          </span>
+          <span>
+            <span class="logo__text">AutoDrive<span>PK</span></span>
+            <span class="logo__sub">Verified cars</span>
+          </span>
+        </a>
+        <p>Pakistan's premier digital showroom for verified sedans, SUVs and daily drivers. Transparent PKR pricing across Karachi, Lahore and Islamabad.</p>
+        <form class="newsletter" data-demo-form="Subscribed! Price alerts are demo-only for now.">
+          <input class="input" type="email" placeholder="Email for price alerts" aria-label="Email for price alerts" required>
+          <button class="btn btn--sm" type="submit">Subscribe</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="inventory.html">Buy cars</a>
+        <a href="sell.html">Sell your car</a>
+        <a href="about.html">About us</a>
+        <a href="about.html#contact">Contact</a>
+        <a href="inventory.html?sort=price-asc">Cars under 50 Lacs</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular brands</h4>
+        <a href="inventory.html?make=Toyota">Toyota</a>
+        <a href="inventory.html?make=Honda">Honda</a>
+        <a href="inventory.html?make=Suzuki">Suzuki</a>
+        <a href="inventory.html?make=Kia">Kia</a>
+        <a href="inventory.html?make=Hyundai">Hyundai</a>
+      </div>
+      <div class="footer-col">
+        <h4>Major hubs</h4>
+        <li>Karachi — Clifton &amp; DHA</li>
+        <li>Lahore — Gulberg &amp; DHA</li>
+        <li>Islamabad — Blue Area</li>
+        <li>Rawalpindi — Saddar</li>
+        <li><a href="tel:+923000002886">+92 300 0002886</a></li>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2025 AutoDrive PK — demo project. Listings and reviews are sample content.</span>
+      <div class="footer-bottom__links">
+        <a href="about.html#safety">Safety tips</a>
+        <a href="about.html#contact">Support</a>
+        <a href="about.html#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
